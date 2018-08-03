@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from klein import Arc, Node
+from klein import Node
 import unittest
 
 
@@ -28,7 +28,6 @@ def create_tree():
 
 
 tree = create_tree()
-# tree.create_arcs()
 
 
 class TestSuite(unittest.TestCase):
@@ -45,14 +44,11 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(a.mate, a.mate.mate.mate)
 
     def test_euler(self):
-        print("euler: " + tree.euler())
-        print(tree.arcs)
-        print(tree.arcs[0].label)
+        a = create_tree()
+        self.assertEqual(a.euler(), "bdee'd'b'cc'")
+        self.assertEqual(a.children[0].euler(), "dee'd'")
+        self.assertEqual(a.children[1].euler(), "")
 
 
 if __name__ == '__main__':
-    unittest.main()
-
-
-def run():
     unittest.main()

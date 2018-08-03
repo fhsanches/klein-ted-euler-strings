@@ -36,19 +36,15 @@ class Node:
         arc = Arc(self, child, child.label)
         self.arcs.append(arc)
 
-#    def create_arcs(self):
-#        for node in self.children:
-#            self.arcs.append(Arc(self, node, node.label))
 
+class Labeler():
+    def __init__(self):
+        self.count = 0
 
-LABEL_COUNT = 0
-
-
-def generate_label():
-    global LABEL_COUNT
-    label = str(LABEL_COUNT)
-    LABEL_COUNT += 1
-    return label
+    def generate_label(self):
+        label = str(self.count)
+        self.count += 1
+        return label
 
 
 def generate_relevant_substrings(self, F):
