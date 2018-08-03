@@ -16,6 +16,8 @@ def create_tree():
     b.add_child(d)
     d.add_child(e)
 
+    a.post_processing()
+
     return a
 
 #   a
@@ -48,6 +50,19 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(a.euler(), "bdee'd'b'cc'")
         self.assertEqual(a.children[0].euler(), "dee'd'")
         self.assertEqual(a.children[1].euler(), "")
+
+    def test_weights(self):
+        a = create_tree()
+        self.assertEqual(a.weigth, 5)
+        self.assertEqual(a.children[0].weigth, 3)
+        self.assertEqual(a.children[1].weigth, 1)
+
+    def test_heavy_path(self):
+        a = create_tree()
+        expected = ["a", "b", "d", "e"]
+        output_ls = a.heavy_path()
+        output = map(lambda x: x.label, output_ls)
+        self.assertEqual(output, expected)
 
 
 if __name__ == '__main__':

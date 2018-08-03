@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from itertools import chain, imap
+
 
 class Arc:
     def __init__(self, s, t, label=None, mate=None):  # source, target
@@ -24,6 +26,12 @@ class Node:
         self.children = []
         self.arcs = []
         self.label = label
+        self.weigth = 1
+
+    def __iter__(self):
+        for v in chain(*imap(iter, self.children)):
+            yield v
+        yield self
 
     def euler(self):
         res = ""
@@ -35,6 +43,35 @@ class Node:
         self.children.append(child)
         arc = Arc(self, child, child.label)
         self.arcs.append(arc)
+
+    def calculate_weigth(self):
+        self.weigth = 1
+        for child in self.children:
+            self.weigth += child.calculate_weigth()
+        return self.weigth
+
+    def heavy_child(self):
+        heavier_weigth = 0
+        heavier_child = None
+
+        for child in self.children:
+            child.calculate_weigth()
+            if(child.weigth > heavier_weigth):
+                (heavier_weigth, heavier_child) = (child.weigth, child)
+
+        return heavier_child
+
+    def post_processing(self):
+        self.calculate_weigth()
+
+    def heavy_path(self):
+        path = [self]
+        node = self.heavy_child()
+        while(node is not None):
+            path.append(node)
+            node = node.heavy_child()
+
+        return path
 
 
 class Labeler():
