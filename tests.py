@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from klein import Node
+from klein import Node, remove
 import unittest
 
 
@@ -47,8 +47,8 @@ class TestSuite(unittest.TestCase):
 
     def test_euler(self):
         a = create_tree()
-        self.assertEqual(a.euler(), "bdee'd'b'cc'")
-        self.assertEqual(a.children[0].euler(), "dee'd'")
+        self.assertEqual(a.euler(), "bdeEDBcC")
+        self.assertEqual(a.children[0].euler(), "deED")
         self.assertEqual(a.children[1].euler(), "")
 
     def test_weights(self):
@@ -64,6 +64,25 @@ class TestSuite(unittest.TestCase):
         output = map(lambda x: x.label, output_ls)
         self.assertEqual(output, expected)
 
+    def test_difference_sequence(self):
+        a = create_tree()
+        expected = "bCcBdDeE"
+        self.assertEqual(a.difference_sequence(a.heavy_path()), expected)
 
-if __name__ == '__main__':
+    def string_removal(self):
+        a = "abcd"
+        self.assertEqual(remove(a, 'a'), "bcd")
+        self.assertEqual(remove(a, 'd'), "abc")
+        self.assertRaises(Exception, remove, a, 'c')
+
+
+#   a
+#  / \
+# b   c
+# |
+# d
+# |
+# e
+
+if(__name__ == '__main__'):
     unittest.main()
