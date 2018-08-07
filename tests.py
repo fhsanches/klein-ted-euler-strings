@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from klein import Node, Euler_String, match
+from klein import Node, Euler_String, Klein
 import unittest
 
 
@@ -69,18 +69,26 @@ class TestSuite(unittest.TestCase):
         expected = "bCcBdDeE"
         self.assertEqual(a.difference_sequence(a.heavy_path()), expected)
 
-    def string_removal(self):
+    def test_string_removal(self):
         a = Euler_String("abcd", "adcb")
         self.assertEqual(a.remove('a'), "bcd")
         self.assertEqual(a.remove('d'), "abc")
         self.assertRaises(Exception, a.remove, 'c')
 
-    def match(self):
+    def test_match(self):
+        k = Klein()
         a = Euler_String("abcd", "adcb")
         b = Euler_String("", "")
         c = Euler_String("", "")
-        self.assertEqual(match(b, c), 0)
-        self.assertEqual(match(a, b), match(a, c))
+        self.assertEqual(k.match(b, c), 0)
+        self.assertEqual(k.match(a, b), k.match(a, c))
+
+    def test_remove_from_s(self):
+        k = Klein()
+        a = Euler_String("abcd", "adcb")
+        b = Euler_String("", "")
+        self.assertEqual(k.delete_from_s(a, b), 4)
+        pass
 
 
 #   a

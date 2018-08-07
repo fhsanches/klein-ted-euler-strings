@@ -118,7 +118,7 @@ class Euler_String():
     def __contains__(self, item):
         return(item in self.string)
 
-    def __getiem__(self, item):
+    def __getitem__(self, item):
         return self.string[item]
 
     def __setiem__(self, item, new):
@@ -164,11 +164,11 @@ class Klein():
         if(not t):
             e = s[-1]
         else:
-            if(t.diffence_symbol == t.E()[-1]):
-                e = s.E()[-1]
+            if(t.diffence_symbol == t[-1]):
+                e = s[-1]
             else:
-                e = s.E()[0]
-        if(e.mate in s.E()):
+                e = s[0]
+        if(e.mate in s):
             return self.dist(s.remove(e), t) + self.cdel(e, s)
         else:
             return self.dist(s.remove(e), t)
