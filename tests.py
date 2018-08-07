@@ -47,9 +47,9 @@ class TestSuite(unittest.TestCase):
 
     def test_euler(self):
         a = create_tree()
-        self.assertEqual(a.euler(), "bdeEDBcC")
-        self.assertEqual(a.children[0].euler(), "deED")
-        self.assertEqual(a.children[1].euler(), "")
+        self.assertEqual(a.E(), "bdeEDBcC")
+        self.assertEqual(a.children[0].E(), "deED")
+        self.assertEqual(a.children[1].E(), "")
 
     def test_weights(self):
         a = create_tree()

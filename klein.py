@@ -22,7 +22,7 @@ class Arc:
         return mate
 
     def euler_visit(self):
-        return "" + self.label + self.t.euler() + self.mate.label
+        return "" + self.label + self.t.E() + self.mate.label
 
 
 class Node:
@@ -31,17 +31,23 @@ class Node:
         self.arcs = []
         self.label = label
         self.weigth = 1
+        self.euler = None
 
     def __iter__(self):
         for v in chain(*imap(iter, self.children)):
             yield v
         yield self
 
-    def euler(self):
+    def euler_string_compute(self):
         res = ""
         for arc in self.arcs:
             res += arc.euler_visit()
         return res
+
+    def E(self):
+        if(not self.euler):
+            self.euler = self.euler_string_compute()
+        return self.euler
 
     def add_child(self, child):
         self.children.append(child)
@@ -89,7 +95,7 @@ class Node:
             p = arcs[(self, v)]
             q = p.mate
 
-            E = self.euler()
+            E = self.E()
 
             T_left = E.split(p.label)[0] + p.label  # ending with p
             T_right = q.label + E.split(q.label)[1]  # starting with q
