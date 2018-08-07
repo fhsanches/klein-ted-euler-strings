@@ -110,14 +110,35 @@ class Node:
         self.difference_sequence()[0]
 
 
-class Labeler():
-    def __init__(self):
-        self.count = 0
+class Euler_String():
+    def __init__(self, string, difference_sequence):
+        self.string = string
+        self.diff = difference_sequence
 
-    def generate_label(self):
-        label = str(self.count)
-        self.count += 1
-        return label
+    def __contains__(self, item):
+        return(item in self.string)
+
+    def __getiem__(self, item):
+        return self.string[item]
+
+    def __setiem__(self, item, new):
+        self.string[item] = new
+        return self.string[item]
+
+    def is_empty(self):
+        return len(self.string) == 0
+
+    def diffence_symbol(self):
+        return self.diff[0]
+
+    def remove(self, symbol):
+        if(self.string[0] == symbol):
+            return self.string[1:]
+        elif(self.string[-1] == symbol):
+            return self.string[0:-1]
+        else:
+            raise(Exception("InvalidSymbolRemoval"))
+        return None
 
 
 def generate_relevant_substrings(self, F):
@@ -127,61 +148,50 @@ def generate_relevant_substrings(self, F):
 INFTY = float('inf')
 
 
-def delete_from_t(s, t):
-    if(not t):
-        return INFTY
-    e = t.diffence_symbol()
-    if(e.mate.label in t.E()):
-        return dist(s, remove(t, e)) + cdel(e, t)
-
-
-def delete_from_s(s, t):
-    if(not s):
-        return INFTY
-    if(not t):
-        e = s.E()[-1]
-    else:
-        if(t.diffence_symbol == t.E()[-1]):
-            e = s.E()[-1]
+class Klein():
+    def delete_from_t(self, s, t):
+        if(t.is_empty()):
+            return INFTY
+        e = t.diffence_symbol()
+        if(e.mate.label in t):
+            return self.dist(s, t.remove(e)) + self.cdel(e, t)
         else:
-            e = s.E()[0]
-    if(e.mate in s.E()):
-        return dist(remove(s, e), t) + cdel(e, s)
-    else:
-        return dist(remove(s, e), t)
+            return self.dist(s, t.remove(e))
 
+    def delete_from_s(self, s, t):
+        if(not s):
+            return INFTY
+        if(not t):
+            e = s[-1]
+        else:
+            if(t.diffence_symbol == t.E()[-1]):
+                e = s.E()[-1]
+            else:
+                e = s.E()[0]
+        if(e.mate in s.E()):
+            return self.dist(s.remove(e), t) + self.cdel(e, s)
+        else:
+            return self.dist(s.remove(e), t)
 
-def match(s, t):
-    if(not s and not t):
-        return 0
-    if(not s or not t):
-        return INFTY
-    e = t.diffence_symbol
-    if(e == t.E()[0]):
-        e_p = s.E()[0]
-    else:
-        e_p = s.E()[-1]
-    if(not (e.mate in t) or not (e_p.mate in s)):
-        return INFTY
-    if(e == t.E()[0]):
-        pass  # TODO
+    def match(self, s, t):
+        if(not s and not t):
+            return 0
+        if(not s or not t):
+            return INFTY
+        e = t.diffence_symbol
+        if(e == t[0]):
+            e_p = s[0]
+        else:
+            e_p = s[-1]
+        if(not (e.mate in t) or not (e_p.mate in s)):
+            return INFTY
+        if(e == t[0]):
+            pass  # TODO
 
+    def dist(self, s, t):
+        return min(self.delete_from_s(s, t),
+                   self.delete_from_t(s, t),
+                   self.match(s, t))
 
-def dist(s, t):
-    return min(delete_from_s(s, t),
-               delete_from_t(s, t),
-               match(s, t))
-
-
-def cdel(symbol, string):
-    return 1
-
-
-def remove(string, symbol):
-    if(string[0] == symbol):
-        return string[1:]
-    elif(string[-1] == symbol):
-        return string[0:-1]
-    else:
-        raise(Exception("InvalidSymbolRemoval"))
-        return None
+    def cdel(self, symbol, string):
+        return 1
