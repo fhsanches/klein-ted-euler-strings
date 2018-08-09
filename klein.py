@@ -7,6 +7,9 @@ arcs = {}
 
 class Arc:
     def __init__(self, s, t, label=None, mate=None):  # source, target
+        '''
+        initializes arc, creates mate (if not given), add self to "arcs" dict
+        '''
         self.s = s
         self.t = t
         self.label = label
@@ -17,7 +20,7 @@ class Arc:
         arcs[(s, t)] = self
 
     def create_mate(self):
-        mate_label = self.label.upper()
+        mate_label = string_mate(self.label)
         mate = Arc(self.t, self.s, mate_label, self)
         return mate
 
@@ -103,7 +106,7 @@ class Node:
             p = v.heavy_path()
             res = T_left + T_right[::-1] + v.difference_sequence(p)
 
-            print("res = " + res)
+            #print("res = " + res)
             return res
 
     def difference_symbol(self):
@@ -111,34 +114,87 @@ class Node:
 
 
 class Euler_String():
+    '''
+    Encapsulates a string and its difference sequence. \
+    Overides access methods to the string
+    '''
     def __init__(self, string, difference_sequence):
         self.string = string
         self.diff = difference_sequence
 
-    def __contains__(self, item):
-        return(item in self.string)
+    def __contains__(self, index):
+        return(index in self.string)
 
-    def __getitem__(self, item):
-        return self.string[item]
+    def __getitem__(self, index):
+        print("str = " + self.string + "/index = " + str(index))
+        return self.string[index]
 
-    def __setiem__(self, item, new):
-        self.string[item] = new
-        return self.string[item]
+    def __setiem__(self, index, new):
+        self.string[index] = new
+        return self.string[index]
+
+    def __str__(self):
+        return "<str: " + self.string + "/diff: " + self.diff + ">"
+
+    def find(self, item):
+        result = str(self.string.find(item))
+        print("finding " + item + " in " + self.string + ":" + result)
+        return(self.string.find(item) >= 0)
 
     def is_empty(self):
+        #  print("len = " + str(len(self.string)))
         return len(self.string) == 0
 
     def diffence_symbol(self):
         return self.diff[0]
 
     def remove(self, symbol):
+        '''returns a new string without symbol, if symbol is at an end'''
         if(self.string[0] == symbol):
-            return self.string[1:]
+            return Euler_String(self.string[1:], self.diff[1:])
         elif(self.string[-1] == symbol):
-            return self.string[0:-1]
+            return Euler_String(self.string[:-1], self.diff[:-1])
         else:
             raise(Exception("InvalidSymbolRemoval"))
         return None
+
+    def has_mate(self, symbol):
+        mate = string_mate(symbol)
+        return(mate in self.string)
+
+    def split_first(self, e):
+        em = string_mate(e)
+        newdiff = self.diff[1:]
+
+        es = self.string.split(em)
+
+        newdiff = newdiff.split(em)
+
+        print("splitting " + str(self) + "at " + em)
+        print("es= " + str(es) + " diff= " + str(newdiff))
+        tpp = Euler_String(es[0][1:], newdiff[0])
+
+        if(len(newdiff) == 1):  # I'm dealing with s, it's fine to break diff
+            tp = Euler_String(es[1], newdiff[0])
+        else:
+            tp = Euler_String(es[1], newdiff[1])
+
+        return(e, tpp, em, tp)
+
+    def split_last(self, e):
+        em = string_mate(e)
+        es = self.string.split(em)
+        newdiff = self.diff[:-1]
+
+        tpp = Euler_String(es[1][:-1], newdiff[1])
+        tp = Euler_String(es[0], newdiff[0])
+
+        if(len(newdiff) == 1):  # I'm dealing with s, it's fine to break diff
+            tp = Euler_String(es[1], newdiff[0])
+        else:
+            tp = Euler_String(es[1], newdiff[1])
+
+        return(e, tpp, em, tp)
 
 
 def generate_relevant_substrings(self, F):
@@ -153,45 +209,66 @@ class Klein():
         if(t.is_empty()):
             return INFTY
         e = t.diffence_symbol()
-        if(e.mate.label in t):
-            return self.dist(s, t.remove(e)) + self.cdel(e, t)
+        if(t.has_mate(e)):
+            return(self.dist(s, t.remove(e)) + self.cdel(e, t))
         else:
-            return self.dist(s, t.remove(e))
+            return(self.dist(s, t.remove(e)))
 
     def delete_from_s(self, s, t):
-        if(not s):
+        if(s.is_empty()):
             return INFTY
-        if(not t):
+        if(t.is_empty()):
             e = s[-1]
         else:
-            if(t.diffence_symbol == t[-1]):
+            if(t.diffence_symbol() == t[-1]):
                 e = s[-1]
             else:
                 e = s[0]
-        if(e.mate in s):
+        if(s.has_mate(e)):
             return self.dist(s.remove(e), t) + self.cdel(e, s)
         else:
             return self.dist(s.remove(e), t)
 
     def match(self, s, t):
-        if(not s and not t):
+        print("match s=" + str(s) + " t=" + str(t))
+        if(s.is_empty() and t.is_empty()):
             return 0
-        if(not s or not t):
+        if(s.is_empty() or t.is_empty()):
             return INFTY
-        e = t.diffence_symbol
+        e = t.diffence_symbol()
         if(e == t[0]):
             e_p = s[0]
         else:
             e_p = s[-1]
-        if(not (e.mate in t) or not (e_p.mate in s)):
+        if((not t.has_mate(e)) or (not s.has_mate(e_p))):
             return INFTY
         if(e == t[0]):
-            pass  # TODO
+            (e, tpp, em, tp) = t.split_first(e)
+            (ep, spp, epm, sp) = s.split_first(e)
+        else:
+            (tp, em, tpp, e) = t.split_last(e)
+            (sp, epm, spp, ep) = s.split_last(e)
+        return self.dist(sp, tp) + self.dist(spp, tpp) + self.cmatch(e, ep)
 
     def dist(self, s, t):
+        print("dist between " + str(s) + " and " + str(t))
         return min(self.delete_from_s(s, t),
                    self.delete_from_t(s, t),
                    self.match(s, t))
 
     def cdel(self, symbol, string):
+        print("payed to remove " + symbol)
         return 1
+
+    def cmatch(self, symbol1, symbol2):
+        print("payed to match " + symbol1 + " with " + symbol2)
+        if(symbol1 == symbol2):
+            return 0
+        return 1
+
+
+def string_mate(c):
+    if(c.islower()):
+        return c.upper()
+    else:
+        return c.lower()

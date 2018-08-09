@@ -34,6 +34,8 @@ tree = create_tree()
 
 class TestSuite(unittest.TestCase):
 
+    k = Klein()
+
     def test_arc(self):
         if(len(tree.arcs) == 0):
             return
@@ -71,8 +73,11 @@ class TestSuite(unittest.TestCase):
 
     def test_string_removal(self):
         a = Euler_String("abcd", "adcb")
-        self.assertEqual(a.remove('a'), "bcd")
-        self.assertEqual(a.remove('d'), "abc")
+        b = Euler_String("a", "a")
+        self.assertEqual(a.remove('a').string, "bcd")
+        self.assertEqual(a.remove('d').string, "abc")
+        self.assertEqual(a.remove('a').remove('d').string, "bc")
+        self.assertTrue(b.remove('a').is_empty())
         self.assertRaises(Exception, a.remove, 'c')
 
     def test_match(self):
@@ -85,10 +90,55 @@ class TestSuite(unittest.TestCase):
 
     def test_remove_from_s(self):
         k = Klein()
-        a = Euler_String("abcd", "adcb")
-        b = Euler_String("", "")
-        self.assertEqual(k.delete_from_s(a, b), 4)
+        a = Euler_String("a", "a")
+        b = Euler_String("Aa", "Aa")
+        c = Euler_String("Aa", "aA")
+        e = Euler_String("abcdDCBA", "AaBbCcDd")
+        f = Euler_String("abcdDC", "abcdDC")
+        empty = Euler_String("", "")
+        self.assertEqual(k.delete_from_s(empty, empty), float('inf'))
+        self.assertEqual(k.delete_from_s(a, empty), 1)
+        self.assertEqual(k.delete_from_s(b, empty), 1)
+        self.assertEqual(k.delete_from_s(c, empty), 1)
+        self.assertEqual(k.delete_from_s(e, empty), 4)
+        self.assertEqual(k.delete_from_s(f, empty), 4)
+        self.assertEqual(k.delete_from_s(e, f), 2)
         pass
+
+    def test_remove_from_t(self):
+        k = Klein()
+        a = Euler_String("a", "a")
+        b = Euler_String("Aa", "Aa")
+        c = Euler_String("Aa", "aA")
+        e = Euler_String("abcdDCBA", "AaBbCcDd")
+        f = Euler_String("abcdDC", "abcdDC")
+        empty = Euler_String("", "")
+        self.assertEqual(k.delete_from_t(empty, empty), float('inf'))
+        self.assertEqual(k.delete_from_t(empty, a), 1)
+        self.assertEqual(k.delete_from_t(empty, b), 1)
+        self.assertEqual(k.delete_from_t(empty, c), 1)
+        self.assertEqual(k.delete_from_t(empty, e), 4)
+        self.assertEqual(k.delete_from_t(empty, f), 4)
+        self.assertEqual(k.delete_from_t(f, e), 2)
+        pass
+
+    def test_has_mate(self):
+        a = Euler_String("aAbBCcDf", "")
+
+        self.assertTrue(a.has_mate("a"))
+        self.assertTrue(a.has_mate("A"))
+        self.assertTrue(a.has_mate("c"))
+        self.assertTrue(a.has_mate("d"))
+        self.assertFalse(a.has_mate("D"))
+        self.assertFalse(a.has_mate("f"))
+        self.assertFalse(a.has_mate("g"))
+
+    def test_split_first(self):
+        a = Euler_String("bcdaDCBA", "bABcCDda")
+
+        expected = ("b", "cdaDC", "B", "A")
+        (e, res1, em, res2) = a.split_first("b")
+        self.assertEqual((e, res1.string, em, res2.string), expected)
 
 
 #   a
