@@ -97,11 +97,11 @@ class TestSuite(unittest.TestCase):
         f = Euler_String("abcdDC", "abcdDC")
         empty = Euler_String("", "")
         self.assertEqual(k.delete_from_s(empty, empty), float('inf'))
-        self.assertEqual(k.delete_from_s(a, empty), 1)
+        self.assertEqual(k.delete_from_s(a, empty), 0)
         self.assertEqual(k.delete_from_s(b, empty), 1)
         self.assertEqual(k.delete_from_s(c, empty), 1)
         self.assertEqual(k.delete_from_s(e, empty), 4)
-        self.assertEqual(k.delete_from_s(f, empty), 4)
+        self.assertEqual(k.delete_from_s(f, empty), 2)
         self.assertEqual(k.delete_from_s(e, f), 2)
         pass
 
@@ -114,11 +114,11 @@ class TestSuite(unittest.TestCase):
         f = Euler_String("abcdDC", "abcdDC")
         empty = Euler_String("", "")
         self.assertEqual(k.delete_from_t(empty, empty), float('inf'))
-        self.assertEqual(k.delete_from_t(empty, a), 1)
+        self.assertEqual(k.delete_from_t(empty, a), 0)
         self.assertEqual(k.delete_from_t(empty, b), 1)
         self.assertEqual(k.delete_from_t(empty, c), 1)
         self.assertEqual(k.delete_from_t(empty, e), 4)
-        self.assertEqual(k.delete_from_t(empty, f), 4)
+        self.assertEqual(k.delete_from_t(empty, f), 2)
         self.assertEqual(k.delete_from_t(f, e), 2)
         pass
 

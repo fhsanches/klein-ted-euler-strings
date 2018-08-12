@@ -150,12 +150,13 @@ class Euler_String():
 
     def remove(self, symbol):
         '''returns a new string without symbol, if symbol is at an end'''
+        print("removing " + symbol + " from " + self.string)
         if(self.string[0] == symbol):
             return Euler_String(self.string[1:], self.diff[1:])
         elif(self.string[-1] == symbol):
-            return Euler_String(self.string[:-1], self.diff[:-1])
+            return Euler_String(self.string[:-1], self.diff[1:])
         else:
-            raise(Exception("InvalidSymbolRemoval"))
+            raise(Exception("BadRemoval: " + symbol + " from " + self.string))
         return None
 
     def has_mate(self, symbol):
@@ -184,17 +185,20 @@ class Euler_String():
     def split_last(self, e):
         em = string_mate(e)
         es = self.string.split(em)
-        newdiff = self.diff[:-1]
+        newdiff = self.diff[1:]
 
-        tpp = Euler_String(es[1][:-1], newdiff[1])
+        print("splitting " + str(self) + "at " + em)
+        print("es= " + str(es) + " diff= " + str(newdiff))
+
         tp = Euler_String(es[0], newdiff[0])
+        tpp = Euler_String(es[1][:-1], newdiff[1:])
 
         if(len(newdiff) == 1):  # I'm dealing with s, it's fine to break diff
             tp = Euler_String(es[1], newdiff[0])
         else:
             tp = Euler_String(es[1], newdiff[1])
 
-        return(e, tpp, em, tp)
+        return(tp, em, tpp, e)
 
 
 def generate_relevant_substrings(self, F):
