@@ -116,7 +116,7 @@ class Node:
 class Euler_String():
     '''
     Encapsulates a string and its difference sequence. \
-    Overides access methods to the string
+    Overrides access methods to the string
     '''
     def __init__(self, string, difference_sequence):
         self.string = string
