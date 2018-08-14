@@ -164,41 +164,54 @@ class Euler_String():
         return(mate in self.string)
 
     def split_first(self, e):
-        em = string_mate(e)
-        newdiff = self.diff[1:]
+        mate = string_mate(e)
 
-        es = self.string.split(em)
-
-        newdiff = newdiff.split(em)
-
-        print("splitting " + str(self) + "at " + em)
-        print("es= " + str(es) + " diff= " + str(newdiff))
-        tpp = Euler_String(es[0][1:], newdiff[0])
-
-        if(len(newdiff) == 1):  # I'm dealing with s, it's fine to break diff
-            tp = Euler_String(es[1], newdiff[0])
+        if(len(self.diff) > 1):
+            consumed_diff = self.diff[1:]
         else:
-            tp = Euler_String(es[1], newdiff[1])
+            consumed_diff = self.diff
 
-        return(e, tpp, em, tp)
+        if(consumed_diff[0] == mate):
+            consumed_diff = consumed_diff[1:]
+
+        split_string = self.string[1:].split(mate)
+        split_diff = consumed_diff.split(mate)
+
+        if(len(split_diff) < 2):
+            split_diff = [split_diff[0], split_diff[0]]
+
+        print("fsplitting " + str(self) + "at " + mate)
+        print("got str= " + str(split_string) + " diff= " + str(split_diff))
+
+        tpp = Euler_String(split_string[0], split_diff[0])
+        tp = Euler_String(split_string[1], split_diff[1])
+
+        return(e, tpp, mate, tp)
 
     def split_last(self, e):
-        em = string_mate(e)
-        es = self.string.split(em)
-        newdiff = self.diff[1:]
+        mate = string_mate(e)
+        consumed_diff = self.diff[1:]
 
-        print("splitting " + str(self) + "at " + em)
-        print("es= " + str(es) + " diff= " + str(newdiff))
+        if(consumed_diff[0] == mate):
+            consumed_diff = consumed_diff[1:]
 
-        tp = Euler_String(es[0], newdiff[0])
-        tpp = Euler_String(es[1][:-1], newdiff[1:])
+        split_string = self.string[:-1].split(mate)
+        split_diff = consumed_diff.split(mate)
 
-        if(len(newdiff) == 1):  # I'm dealing with s, it's fine to break diff
-            tp = Euler_String(es[1], newdiff[0])
-        else:
-            tp = Euler_String(es[1], newdiff[1])
+        # workarounds for inconsistent states due to removals from s
+        if(len(split_diff) < 2):
+            split_diff = [split_diff[0], split_diff[0]]
 
-        return(tp, em, tpp, e)
+        if(len(split_string) < 2):
+            split_string = [split_string[0], split_string[0]]
+
+        print("lsplitting " + str(self) + "at " + mate)
+        print("string= " + str(split_string) + " diff= " + str(consumed_diff))
+
+        tp = Euler_String(split_string[0], split_diff[0])
+        tpp = Euler_String(split_string[1], split_diff[1])
+
+        return(tp, mate, tpp, e)
 
 
 def generate_relevant_substrings(self, F):
@@ -255,7 +268,7 @@ class Klein():
         return self.dist(sp, tp) + self.dist(spp, tpp) + self.cmatch(e, ep)
 
     def dist(self, s, t):
-        print("dist between " + str(s) + " and " + str(t))
+        print("dist between s=" + str(s) + " and t=" + str(t))
         return min(self.delete_from_s(s, t),
                    self.delete_from_t(s, t),
                    self.match(s, t))

@@ -80,6 +80,14 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(b.remove('a').is_empty())
         self.assertRaises(Exception, a.remove, 'c')
 
+    def test_is_empty(self):
+        a = Euler_String("", "")
+        b = Euler_String("a", "a")
+        c = b.remove("a")
+        self.assertTrue(a.is_empty())
+        self.assertFalse(b.is_empty())
+        self.assertTrue(c.is_empty())
+
     def test_match(self):
         k = Klein()
         a = Euler_String("abcd", "adcb")
@@ -110,7 +118,7 @@ class TestSuite(unittest.TestCase):
         a = Euler_String("a", "a")
         b = Euler_String("Aa", "Aa")
         c = Euler_String("Aa", "aA")
-        e = Euler_String("abcdDCBA", "AaBbCcDd")
+        e = Euler_String("abcdDCBA", "AaBbCcdD")
         f = Euler_String("abcdDC", "abcdDC")
         empty = Euler_String("", "")
         self.assertEqual(k.delete_from_t(empty, empty), float('inf'))
@@ -139,6 +147,13 @@ class TestSuite(unittest.TestCase):
         expected = ("b", "cdaDC", "B", "A")
         (e, res1, em, res2) = a.split_first("b")
         self.assertEqual((e, res1.string, em, res2.string), expected)
+
+    def test_split_last(self):
+        a = Euler_String("bcdaDCBA", "AbBcCDda")
+
+        expected = ("bcd", "a", "DCB", "A")
+        (res1, em, res2, e) = a.split_last("A")
+        self.assertEqual((res1.string, em, res2.string, e), expected)
 
 
 #   a
