@@ -88,6 +88,32 @@ class TestSuite(unittest.TestCase):
         self.assertFalse(b.is_empty())
         self.assertTrue(c.is_empty())
 
+    def test_split_first(self):
+        a = Euler_String("bcdaDCBA", "bABcCDda")
+
+        expected_e = ("b", "B")
+        expected_res_str = ("cdaDC", "A")
+        expected_res_diff = ("cCDda", "A")
+
+        (e, res1, em, res2) = a.split_first("b", True)
+
+        self.assertEqual((e, em), expected_e)
+        self.assertEqual((res1.string, res2.string), expected_res_str)
+        self.assertEqual((res1.diff, res2.diff), expected_res_diff)
+
+    def test_split_last(self):
+        a = Euler_String("bcdaDCBA", "AbBcCDda")
+
+        expected_e = ("A", "a")
+        expected_res_str = ("bcd", "DCB")
+        expected_res_diff = ("", "bBcCDd")
+
+        (res1, em, res2, e) = a.split_last("A", True)
+
+        self.assertEqual((e, em), expected_e)
+        self.assertEqual((res1.string, res2.string), expected_res_str)
+        self.assertEqual((res1.diff, res2.diff), expected_res_diff)
+
     def test_match(self):
         k = Klein()
         a = Euler_String("abcd", "adcb")
@@ -141,19 +167,6 @@ class TestSuite(unittest.TestCase):
         self.assertFalse(a.has_mate("f"))
         self.assertFalse(a.has_mate("g"))
 
-    def test_split_first(self):
-        a = Euler_String("bcdaDCBA", "bABcCDda")
-
-        expected = ("b", "cdaDC", "B", "A")
-        (e, res1, em, res2) = a.split_first("b")
-        self.assertEqual((e, res1.string, em, res2.string), expected)
-
-    def test_split_last(self):
-        a = Euler_String("bcdaDCBA", "AbBcCDda")
-
-        expected = ("bcd", "a", "DCB", "A")
-        (res1, em, res2, e) = a.split_last("A")
-        self.assertEqual((res1.string, em, res2.string, e), expected)
 
 
 #   a
