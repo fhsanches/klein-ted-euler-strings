@@ -115,13 +115,14 @@ class Node:
     def difference_symbol(self):
         self.difference_sequence()[0]
 
-    def special_subtrees(self, ls=[]):
+    def special_subtrees(self):
         hpath = self.heavy_path()
-        for subtree in hpath:
-            for child in subtree.children:
+        ls = []
+        for node in hpath:
+            for child in node.children:
                 if(child not in hpath):
                     ls.append(child)
-                    child.special_subtrees(ls)
+                    ls.extend(child.special_subtrees())
 
         return ls
 
@@ -180,7 +181,7 @@ class Euler_String():
     def split_first(self, e, is_s=False):
 
         mate = find_mate(e)
-        split_# string = list_split(self.string[1:], mate)
+        split_string = list_split(self.string[1:], mate)
 
         if(is_s):
             # difference sequence matters, let's split it

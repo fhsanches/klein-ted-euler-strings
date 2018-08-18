@@ -5,6 +5,15 @@ import unittest
 
 
 def create_tree():
+
+    #   a
+    #  / \
+    # b   c
+    # |
+    # d
+    # |
+    # e
+
     a = Node(1)
     b = Node(2)
     c = Node(3)
@@ -20,13 +29,45 @@ def create_tree():
 
     return a
 
-#   a
-#  / \
-# b   c
-# |
-# d
-# |
-# e
+
+def create_tree_b():
+
+    #   a
+    #  / \
+    # b   c
+    # |  / \
+    # d f   g
+    # | |  / \
+    # e h i   j
+    #         |
+    #         k
+
+    a = Node(1)
+    b = Node(2)
+    c = Node(3)
+    d = Node(4)
+    e = Node(5)
+    f = Node(6)
+    g = Node(7)
+    h = Node(8)
+    i = Node(9)
+    j = Node(10)
+    k = Node(11)
+
+    a.add_child(b)
+    a.add_child(c)
+    b.add_child(d)
+    d.add_child(e)
+    c.add_child(f)
+    c.add_child(g)
+    f.add_child(h)
+    g.add_child(i)
+    g.add_child(j)
+    j.add_child(k)
+
+    a.post_processing()
+
+    return a
 
 
 tree = create_tree()
@@ -80,18 +121,47 @@ class TestSuite(unittest.TestCase):
         expected = [2, -3, 3, -2, 4, -4, 5, -5]
         self.assertEqual(a.difference_sequence(a.heavy_path()), expected)
 
-#   a
-#  / \
-# b   c
-# |
-# d
-# |
-# e
 
     def test_special_subtrees(self):
+
+        # a:
+        #   a
+        #  / \
+        # b   c
+        # |
+        # d
+        # |
+        # e
+
+        #     c
+
         a = create_tree()
         expected = [3]
         result = map(lambda x: x.label, a.special_subtrees())
+        self.assertEqual(result, expected)
+
+        # b:
+        #   a
+        #  / \
+        # b   c
+        # |  / \
+        # d f   g
+        # | |  / \
+        # e h i   j
+        #         |
+        #         k
+
+        # b
+        # |
+        # d f
+        # | |
+        # e h i
+        #
+        #
+
+        b = create_tree_b()
+        expected = [2, 6, 9]
+        result = map(lambda x: x.label, b.special_subtrees())
         self.assertEqual(result, expected)
 
     def test_string_removal(self):
