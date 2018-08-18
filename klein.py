@@ -20,12 +20,15 @@ class Arc:
         arcs[(s, t)] = self
 
     def create_mate(self):
-        mate_label = string_mate(self.label)
+        mate_label = find_mate(self.label)
         mate = Arc(self.t, self.s, mate_label, self)
         return mate
 
     def euler_visit(self):
-        return "" + self.label + self.t.E() + self.mate.label
+        ls = [self.label]
+        ls.extend(self.t.E())
+        ls.append(self.mate.label)
+        return ls
 
 
 class Node:
@@ -42,9 +45,9 @@ class Node:
         yield self
 
     def euler_string_compute(self):
-        res = ""
+        res = []
         for arc in self.arcs:
-            res += arc.euler_visit()
+            res.extend(arc.euler_visit())
         return res
 
     def E(self):
@@ -88,7 +91,7 @@ class Node:
 
     def difference_sequence(self, path=None):
         if(not self.children):  # is empty
-            return ""
+            return []
         if(not path):
             path = self.heavy_path()
         else:
@@ -100,17 +103,27 @@ class Node:
 
             E = self.E()
 
-            T_left = E.split(p.label)[0] + p.label  # ending with p
-            T_right = q.label + E.split(q.label)[1]  # starting with q
+            T_left = list_split(E, p.label)[0] + [p.label]  # ending with p
+            T_right = [q.label] + list_split(E, q.label)[1]  # starting with q
 
             p = v.heavy_path()
             res = T_left + T_right[::-1] + v.difference_sequence(p)
 
-            #print("res = " + res)
+            # print("res = " + res)
             return res
 
     def difference_symbol(self):
         self.difference_sequence()[0]
+
+    def special_subtrees(self, ls=[]):
+        hpath = self.heavy_path()
+        for subtree in hpath:
+            for child in subtree.children:
+                if(child not in hpath):
+                    ls.append(child)
+                    child.special_subtrees(ls)
+
+        return ls
 
 
 class Euler_String():
@@ -126,7 +139,7 @@ class Euler_String():
         return(index in self.string)
 
     def __getitem__(self, index):
-        print("str = " + self.string + "/index = " + str(index))
+        print("str = " + str(self.string) + "/index = " + str(index))
         return self.string[index]
 
     def __setiem__(self, index, new):
@@ -134,7 +147,7 @@ class Euler_String():
         return self.string[index]
 
     def __str__(self):
-        return "<str: " + self.string + "/diff: " + self.diff + ">"
+        return "<str: " + str(self.string) + "/diff: " + str(self.diff) + ">"
 
     def find(self, item):
         result = str(self.string.find(item))
@@ -150,41 +163,41 @@ class Euler_String():
 
     def remove(self, symbol):
         '''returns a new string without symbol, if symbol is at an end'''
-        print("removing " + symbol + " from " + self.string)
+        print("removing " + str(symbol) + " from " + str(self.string))
         if(self.string[0] == symbol):
             return Euler_String(self.string[1:], self.diff[1:])
         elif(self.string[-1] == symbol):
             return Euler_String(self.string[:-1], self.diff[1:])
         else:
-            raise(Exception("BadRemoval: " + symbol + " from " + self.string))
+            text = "BadRemoval: " + str(symbol) + " from " + str(self.string)
+            raise(Exception(text))
         return None
 
     def has_mate(self, symbol):
-        mate = string_mate(symbol)
+        mate = find_mate(symbol)
         return(mate in self.string)
 
     def split_first(self, e, is_s=False):
 
-        mate = string_mate(e)
-        split_string = self.string[1:].split(mate)
+        mate = find_mate(e)
+        split_# string = list_split(self.string[1:], mate)
 
-        # difference sequence matters, let's split it
         if(is_s):
+            # difference sequence matters, let's split it
             consumed_diff = self.diff[1:]
 
             if(consumed_diff[0] == mate):
                 consumed_diff = consumed_diff[1:]
 
-            split_diff = consumed_diff.split(mate)
-
-        # difference sequence is irrelevant, let's leave it as it is
+            split_diff = list_split(consumed_diff, mate)
         else:
-            split_diff = ["", ""]
+            # difference sequence is irrelevant, let's leave it as it is
+            split_diff = [[], []]
 
         # if(len(split_diff) < 2):
         # split_diff = [split_diff[0], split_diff[0]]
 
-        print("fsplitting " + str(self) + "at " + mate)
+        print("fsplitting " + str(self) + "at " + str(mate))
         print("got str= " + str(split_string) + " diff= " + str(split_diff))
 
         tpp = Euler_String(split_string[0], split_diff[1])
@@ -193,17 +206,17 @@ class Euler_String():
         return(e, tpp, mate, tp)
 
     def split_last(self, e, is_s=False):
-        mate = string_mate(e)
-        split_string = self.string[:-1].split(mate)
+        mate = find_mate(e)
+        split_string = list_split(self.string[:-1], mate)
 
         if(is_s):
             consumed_diff = self.diff[1:]
-            split_diff = consumed_diff.split(mate)
+            split_diff = list_split(consumed_diff, mate)
 
         else:
-            split_diff = ["", ""]
+            split_diff = [[], []]
 
-        print("lsplitting " + str(self) + "at " + mate)
+        print("lsplitting " + str(self) + "at " + str(mate))
         print("string=" + str(split_string) + " diff=" + str(split_diff))
 
         tp = Euler_String(split_string[0], split_diff[1])
@@ -272,7 +285,7 @@ class Klein():
                    self.match(s, t))
 
     def cdel(self, symbol, string):
-        print("payed to remove " + symbol)
+        print("payed to remove " + str(symbol))
         return 1
 
     def cmatch(self, symbol1, symbol2):
@@ -282,8 +295,12 @@ class Klein():
         return 1
 
 
-def string_mate(c):
-    if(c.islower()):
-        return c.upper()
-    else:
-        return c.lower()
+def find_mate(c):
+    return c * -1
+
+
+def list_split(ls, x):
+        i = ls.index(x)
+        return [ls[0:i], ls[i+1:]]
+#    except(FailException):
+#        raise("gah")
