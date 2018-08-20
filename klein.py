@@ -138,7 +138,7 @@ class Euler_String():
 
         self.arcs = [None] * (len(string)+1)
 
-        for (index, character) in enumerate(string):
+        for (index, character) in enumerate(self._string):
             self.arcs[character] = index
 
         self.start = 0
@@ -146,20 +146,20 @@ class Euler_String():
 
     @property
     def string(self):
-        print("i,j= " + str(self.start) + "," + str(self.end))
+        # print("i,j= " + str(self.start) + "," + str(self.end))
         return self._string[self.start:self.end]
 
     def __contains__(self, element):
         return(self.arcs[element])
 
-    def __getitem__(self, index):
-        print("str= " + str(self.string) + " index= " + str(index) +
-              " start= " + str(self.start) + " end= " + str(self.end))
-        return self.string[index]
+    # def __getitem__(self, index):
+    #     print("str= " + str(self.string) + " index= " + str(index) +
+    #           " start= " + str(self.start) + " end= " + str(self.end))
+    #     return self.string[index]
 
-    def __setiem__(self, index, new):
-        self.string[index] = new
-        return self.string[index]
+    # def __setitem__(self, index, new):
+    #     self.string[index] = new
+    #     return self.string[index]
 
     def __str__(self):
         return "<str: " + str(self.string) + "/diff: " + str(self.diff) + ">"
@@ -177,10 +177,10 @@ class Euler_String():
         '''returns new substring without the symbol iff symbol is at an end'''
         print("removing " + str(symbol) + " from " + str(self.string))
         print("with i,j= " + str(self.start) + "," + str(self.end))
-        if(self.string[self.start] == symbol):
-            return Euler_Substring(self, 1, len(self.string))
-        elif(self.string[self.end-self.start-1] == symbol):
-            return Euler_Substring(self, 0, len(self.string)-1)
+        if(self._string[self.start] == symbol):
+            return Euler_Substring(self, self.start+1, self.end)
+        elif(self._string[self.end-1] == symbol):
+            return Euler_Substring(self, self.start, self.end-1)
         else:
             text = "BadRemoval: " + str(symbol) + " from " + str(self.string)
             raise(Exception(text))
@@ -220,7 +220,7 @@ class Euler_String():
 
 class Euler_Substring(Euler_String):
     def __init__(self, parent, start, end):
-        self._string = parent.string
+        self._string = parent._string
         self.diff = parent.diff
         self.start = start
         self.end = end
