@@ -109,7 +109,6 @@ class Node:
             p = v.heavy_path()
             res = T_left + T_right[::-1] + v.difference_sequence(p)
 
-            # print("res = " + res)
             return res
 
     def difference_symbol(self):
@@ -132,9 +131,8 @@ class Euler_String():
     Encapsulates a string and its difference sequence. \
     Overrides access methods to the string
     '''
-    def __init__(self, string, difference_sequence):
+    def __init__(self, string):
         self._string = string
-        self.diff = difference_sequence
 
         self.arcs = [None] * (len(string)+1)
 
@@ -160,7 +158,7 @@ class Euler_String():
     #     return self.string[index]
 
     def __str__(self):
-        return "<str: " + str(self.string) + "/diff: " + str(self.diff) + ">"
+        return "<str: " + str(self.string) + ">"
 
     def index_of(self, item):
         return self.arcs[item]
@@ -174,7 +172,7 @@ class Euler_String():
         return Euler_Substring(self, sub_start, sub_end)
 
     def diffence_symbol(self):
-        return self.diff[0]
+        raise Exception("NYI")
 
     # vetor        abs   relativo
     # [0, 1, 2, 3] end=4 end=end
@@ -229,7 +227,6 @@ class Euler_Substring(Euler_String):
     def __init__(self, parent, start, end):
         self._string = parent._string
         self.parent = parent
-        self.diff = parent.diff
         self.start = start
         self.end = end
 

@@ -140,7 +140,7 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(a.children[1].E(), [])
 
     def test_string_index(self):
-        a = Euler_String([2, -3, 3, -2, 4, -4, 5, -5], [])
+        a = Euler_String([2, -3, 3, -2, 4, -4, 5, -5])
         self.assertEqual(a[0], 2)
         self.assertEqual(a[1], -3)
         self.assertEqual(a[-1], -5)
@@ -265,8 +265,8 @@ class TestSuite(unittest.TestCase):
         # self.assertTrue(b.remove('a').is_empty())
         # self.assertRaises(Exception, a.remove, 'c')
 
-        a = Euler_String([1, 2, 3, 4], [1, 4, 3, 2])
-        b = Euler_String([1], [1])
+        a = Euler_String([1, 2, 3, 4])
+        b = Euler_String([1])
         self.assertEqual(a.remove(1).string, [2, 3, 4])
         self.assertEqual(a.remove(4).string, [1, 2, 3])
         self.assertEqual(a.remove(1).remove(4).string, [2, 3])
@@ -278,8 +278,8 @@ class TestSuite(unittest.TestCase):
         # b = Euler_String("a", "a")
         # c = b.remove("a")
 
-        a = Euler_String([], [])
-        b = Euler_String([1], [1])
+        a = Euler_String([])
+        b = Euler_String([1])
         c = b.remove(1)
 
         self.assertTrue(a.is_empty())
@@ -295,8 +295,7 @@ class TestSuite(unittest.TestCase):
 
         # (e, res1, em, res2) = a.split_first("b", True)
 
-        a = Euler_String([2, 3, 4, 1, -4, -3, -2, -1],
-                         [2, -1, -2, 3, -3, -4, 4, 1])
+        a = Euler_String([2, 3, 4, 1, -4, -3, -2, -1])
 
         expected_e = (2, -2)
         expected_tp_tpp_str = ([3, 4, 1, -4, -3], [-1])
@@ -315,8 +314,7 @@ class TestSuite(unittest.TestCase):
 
         # (res1, em, res2, e) = a.split_last("A", True)
 
-        a = Euler_String([2, 3, 4, 1, -4, -3, -2, -1],
-                         [-1, 2, -2, 3, -3, -4, 4, 1])
+        a = Euler_String([2, 3, 4, 1, -4, -3, -2, -1])
 
         expected_e = (-1, 1)
         expected_res_str = ([2, 3, 4], [-4, -3, -2])
@@ -328,9 +326,9 @@ class TestSuite(unittest.TestCase):
 
     def test_match(self):
         k = Klein()
-        a = Euler_String([1, 2, 3, 4], [1, 2, 3, 4])
-        b = Euler_String([], [])
-        c = Euler_String([], [])
+        a = Euler_String([1, 2, 3, 4])
+        b = Euler_String([])
+        c = Euler_String([])
         self.assertEqual(k.match(b, c), 0)
         self.assertEqual(k.match(a, b), k.match(a, c))
 
@@ -343,14 +341,13 @@ class TestSuite(unittest.TestCase):
         # f = Euler_String("abcdDC", "abcdDC")
         # empty = Euler_String(0, 0)
 
-        a = Euler_String([1], [1])
-        b = Euler_String([-1, 1], [-1, 1])
-        c = Euler_String([-1, 1], [1, -1])
-        e = Euler_String([1, 2, 3, 4, -4, -3, -2, -1],
-                         [-1, 1, -2, 2, -3, 3, -4, 4])
-        f = Euler_String([1, 2, 3, 4, -4, -3],
-                         [1, 2, 3, -4, -3])
-        empty = Euler_String([], [])
+        a = Euler_String([1])
+        b = Euler_String([-1, 1])
+        c = Euler_String([-1, 1])
+        e = Euler_String([1, 2, 3, 4, -4, -3, -2, -1])
+        f = Euler_String([1, 2, 3, 4, -4, -3])
+        empty = Euler_String([])
+
         self.assertEqual(k.delete_from_s(empty, empty), float('inf'))
         self.assertEqual(k.delete_from_s(a, empty), 0)
         self.assertEqual(k.delete_from_s(b, empty), 1)
@@ -369,14 +366,12 @@ class TestSuite(unittest.TestCase):
         # f = Euler_String("abcdDC", "abcdDC")
         # empty = Euler_String("", "")
 
-        a = Euler_String([1], [1])
-        b = Euler_String([-1, 1], [-1, 1])
-        c = Euler_String([-1, 1], [1, -1])
-        e = Euler_String([1, 2, 3, 4, -4, -3, -2, -1],
-                         [-1, 1, -2, 2, -3, 3, 4, -4])
-        f = Euler_String([1, 2, 3, 4, -4, -3],
-                         [1, 2, 3, 4, -4, -3])
-        empty = Euler_String([], [])
+        a = Euler_String([1])
+        b = Euler_String([-1, 1])
+        c = Euler_String([-1, 1])
+        e = Euler_String([1, 2, 3, 4, -4, -3, -2, -1])
+        f = Euler_String([1, 2, 3, 4, -4, -3])
+        empty = Euler_String([])
 
         self.assertEqual(k.delete_from_t(empty, empty), float('inf'))
         self.assertEqual(k.delete_from_t(empty, a), 0)
@@ -398,7 +393,7 @@ class TestSuite(unittest.TestCase):
         # self.assertFalse(a.has_mate("f"))
         # self.assertFalse(a.has_mate("g"))
 
-        a = Euler_String([1, -1, 2, -2, -3, 3, -4, 5], [])
+        a = Euler_String([1, -1, 2, -2, -3, 3, -4, 5])
 
         self.assertTrue(a.has_mate(1))
         self.assertTrue(a.has_mate(-1))
