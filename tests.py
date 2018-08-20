@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from klein import Node, Euler_String, Klein, list_split, is_empty
+from klein import Node, Euler_String, Euler_Substring, Klein, list_split
 import unittest
 
 
@@ -138,6 +138,27 @@ class TestSuite(unittest.TestCase):
         # self.assertEqual(a.children[0].E(), "deED")
         self.assertEqual(a.children[0].E(), [4, 5, -5, -4])
         self.assertEqual(a.children[1].E(), [])
+
+    def test_string_index(self):
+        a = Euler_String([2, -3, 3, -2, 4, -4, 5, -5], [])
+        self.assertEqual(a[0], 2)
+        self.assertEqual(a[1], -3)
+        self.assertEqual(a[-1], -5)
+
+        b = Euler_Substring(a, 1, 5)  # [-3, 3, -2, 4]
+        self.assertEqual(b[0], -3)
+        self.assertEqual(b[1], 3)
+        self.assertEqual(b[-1], 4)
+
+        c = Euler_Substring(a, 1, 8)  # [-3, 3, -2, 4, -4, 5, -5]
+        self.assertEqual(c[0], -3)
+        self.assertEqual(c[1], 3)
+        self.assertEqual(c[-1], -5)
+
+        d = Euler_Substring(c, 1, 5)  # [3, -2, 4, -4]
+        self.assertEqual(d[0], 3)
+        self.assertEqual(d[1], -2)
+        self.assertEqual(d[-1], -4)
 
     def test_weights(self):
         a = create_tree()

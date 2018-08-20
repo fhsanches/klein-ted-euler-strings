@@ -153,7 +153,8 @@ class Euler_String():
         return(self.arcs[element])
 
     def __getitem__(self, index):
-        print("str = " + str(self.string) + "/index = " + str(index))
+        print("str= " + str(self.string) + " index= " + str(index) +
+              " start= " + str(self.start) + " end= " + str(self.end))
         return self.string[index]
 
     def __setiem__(self, index, new):
@@ -173,13 +174,13 @@ class Euler_String():
         return self.diff[0]
 
     def remove(self, symbol):
-        '''returns a pair of indexes for the string without
-        the symbol if the symbol is at an end'''
+        '''returns new substring without the symbol iff symbol is at an end'''
         print("removing " + str(symbol) + " from " + str(self.string))
-        if(self.string[-1] == symbol):
-            return Euler_Substring(self, self.i+1, self.j)
-        elif(self.string[0] == symbol):
-            return Euler_Substring(self, self.i, self.j-1)
+        print("with i,j= " + str(self.start) + "," + str(self.end))
+        if(self.string[self.start] == symbol):
+            return Euler_Substring(self, self.start+1, self.end)
+        elif(self.string[self.end-self.start-1] == symbol):
+            return Euler_Substring(self, self.start, self.end-1)
         else:
             text = "BadRemoval: " + str(symbol) + " from " + str(self.string)
             raise(Exception(text))
