@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from klein import Node, Euler_String, Klein, list_split
+from klein import Node, Euler_String, Klein, list_split, is_empty
 import unittest
 
 
@@ -53,8 +53,8 @@ def create_tree_b():
     i = Node(9)
     j = Node(10)
     k = Node(11)
-
     a.add_child(b)
+
     a.add_child(c)
     b.add_child(d)
     d.add_child(e)
@@ -66,6 +66,44 @@ def create_tree_b():
     j.add_child(k)
 
     a.post_processing()
+
+    return a
+
+
+def create_tree_c():
+
+    #     a
+    #    /  \
+    #   b    c
+    #  / \  / \
+    # d   ef   g
+    # |       / \
+    # h      i   j
+    #            |
+    #            k
+
+    a = Node(1)
+    b = Node(2)
+    c = Node(3)
+    d = Node(4)
+    e = Node(5)
+    f = Node(6)
+    g = Node(7)
+    h = Node(8)
+    i = Node(9)
+    j = Node(10)
+    k = Node(11)
+
+    a.add_child(b)
+    a.add_child(c)
+    b.add_child(d)
+    b.add_child(e)
+    d.add_child(h)
+    c.add_child(f)
+    c.add_child(g)
+    g.add_child(i)
+    g.add_child(j)
+    j.add_child(k)
 
     return a
 
@@ -121,7 +159,6 @@ class TestSuite(unittest.TestCase):
         expected = [2, -3, 3, -2, 4, -4, 5, -5]
         self.assertEqual(a.difference_sequence(a.heavy_path()), expected)
 
-
     def test_special_subtrees(self):
 
         # a:
@@ -161,7 +198,38 @@ class TestSuite(unittest.TestCase):
 
         b = create_tree_b()
         expected = [2, 6, 9]
-        result = map(lambda x: x.label, b.special_subtrees())
+        result = b.special_subtrees()
+        result.sort()
+        result = map(lambda x: x.label, result)        
+        self.assertEqual(result, expected)
+
+        # c:
+        #     a
+        #    /  \
+        #   b    c
+        #  / \  / \
+        # d   ef   g
+        # |       / \
+        # h      i   j
+        #            |
+        #            k
+
+        # c':
+        #
+        #
+        #   b
+        #  / \
+        # d   e f
+        # |
+        # h      i
+
+        # c'': e
+
+        c = create_tree_c()
+        expected = [2, 5, 6, 9]
+        result = c.special_subtrees()
+        result.sort()
+        result = map(lambda x: x.label, result)
         self.assertEqual(result, expected)
 
     def test_string_removal(self):
@@ -207,14 +275,12 @@ class TestSuite(unittest.TestCase):
                          [2, -1, -2, 3, -3, -4, 4, 1])
 
         expected_e = (2, -2)
-        expected_res_str = ([3, 4, 1, -4, -3], [-1])
-        expected_res_diff = ([3, -3, -4, 4, 1], [-1])
+        expected_tp_tpp_str = ([3, 4, 1, -4, -3], [-1])
 
-        (e, res1, em, res2) = a.split_first(2, True)
+        (e, tpp, em, tp) = a.split_first(2, True)
 
         self.assertEqual((e, em), expected_e)
-        self.assertEqual((res1.string, res2.string), expected_res_str)
-        self.assertEqual((res1.diff, res2.diff), expected_res_diff)
+        self.assertEqual((tpp.string, tp.string), expected_tp_tpp_str)
 
     def test_split_last(self):
         # a = Euler_String("bcdaDCBA", "AbBcCDda")
@@ -230,19 +296,17 @@ class TestSuite(unittest.TestCase):
 
         expected_e = (-1, 1)
         expected_res_str = ([2, 3, 4], [-4, -3, -2])
-        expected_res_diff = ([], [2, -2, 3, -3, -4, 4])
 
         (res1, em, res2, e) = a.split_last(-1, True)
 
         self.assertEqual((e, em), expected_e)
         self.assertEqual((res1.string, res2.string), expected_res_str)
-        self.assertEqual((res1.diff, res2.diff), expected_res_diff)
 
     def test_match(self):
         k = Klein()
-        a = Euler_String("abcd", "adcb")
-        b = Euler_String("", "")
-        c = Euler_String("", "")
+        a = Euler_String([1, 2, 3, 4], [1, 2, 3, 4])
+        b = Euler_String([], [])
+        c = Euler_String([], [])
         self.assertEqual(k.match(b, c), 0)
         self.assertEqual(k.match(a, b), k.match(a, c))
 
@@ -300,7 +364,7 @@ class TestSuite(unittest.TestCase):
         pass
 
     def test_has_mate(self):
-        #a = Euler_String("aAbBCcDf", "")
+        # a = Euler_String("aAbBCcDf", "")
 
         # self.assertTrue(a.has_mate("a"))
         # self.assertTrue(a.has_mate("A"))

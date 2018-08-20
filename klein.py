@@ -133,11 +133,24 @@ class Euler_String():
     Overrides access methods to the string
     '''
     def __init__(self, string, difference_sequence):
-        self.string = string
+        self._string = string
         self.diff = difference_sequence
 
-    def __contains__(self, index):
-        return(index in self.string)
+        self.arcs = [None] * (len(string)+1)
+
+        for (index, character) in enumerate(string):
+            self.arcs[character] = index
+
+        self.start = 0
+        self.end = len(string)
+
+    @property
+    def string(self):
+        print("i,j= " + str(self.start) + "," + str(self.end))
+        return self._string[self.start:self.end]
+
+    def __contains__(self, element):
+        return(self.arcs[element])
 
     def __getitem__(self, index):
         print("str = " + str(self.string) + "/index = " + str(index))
@@ -150,80 +163,66 @@ class Euler_String():
     def __str__(self):
         return "<str: " + str(self.string) + "/diff: " + str(self.diff) + ">"
 
-    def find(self, item):
-        result = str(self.string.find(item))
-        print("finding " + item + " in " + self.string + ":" + result)
-        return(self.string.find(item) >= 0)
+    def index_of(self, item):
+        return self.arcs[item]
 
     def is_empty(self):
-        #  print("len = " + str(len(self.string)))
-        return len(self.string) == 0
+        return self.start == self.end
 
     def diffence_symbol(self):
         return self.diff[0]
 
     def remove(self, symbol):
-        '''returns a new string without symbol, if symbol is at an end'''
+        '''returns a pair of indexes for the string without
+        the symbol if the symbol is at an end'''
         print("removing " + str(symbol) + " from " + str(self.string))
-        if(self.string[0] == symbol):
-            return Euler_String(self.string[1:], self.diff[1:])
-        elif(self.string[-1] == symbol):
-            return Euler_String(self.string[:-1], self.diff[1:])
+        if(self.string[-1] == symbol):
+            return Euler_Substring(self, self.i+1, self.j)
+        elif(self.string[0] == symbol):
+            return Euler_Substring(self, self.i, self.j-1)
         else:
             text = "BadRemoval: " + str(symbol) + " from " + str(self.string)
             raise(Exception(text))
         return None
 
     def has_mate(self, symbol):
-        mate = find_mate(symbol)
-        return(mate in self.string)
+        return(symbol*(-1) in self.string)
+
+    def index_of_mate(self, symbol):
+        mate = symbol * -1
+        return self.arcs[mate]
 
     def split_first(self, e, is_s=False):
+        e_m = find_mate(e)
+        mate_index = self.index_of_mate(e)
 
-        mate = find_mate(e)
-        split_string = list_split(self.string[1:], mate)
+        (tpp_start, tpp_end) = (self.start+1, mate_index)
+        (tp_start, tp_end) = (mate_index + 1, self.end)
 
-        if(is_s):
-            # difference sequence matters, let's split it
-            consumed_diff = self.diff[1:]
+        tpp = Euler_Substring(self, tpp_start, tpp_end)
+        tp = Euler_Substring(self, tp_start, tp_end)
 
-            if(consumed_diff[0] == mate):
-                consumed_diff = consumed_diff[1:]
-
-            split_diff = list_split(consumed_diff, mate)
-        else:
-            # difference sequence is irrelevant, let's leave it as it is
-            split_diff = [[], []]
-
-        # if(len(split_diff) < 2):
-        # split_diff = [split_diff[0], split_diff[0]]
-
-        print("fsplitting " + str(self) + "at " + str(mate))
-        print("got str= " + str(split_string) + " diff= " + str(split_diff))
-
-        tpp = Euler_String(split_string[0], split_diff[1])
-        tp = Euler_String(split_string[1], split_diff[0])
-
-        return(e, tpp, mate, tp)
+        return(e, tpp, e_m, tp)
 
     def split_last(self, e, is_s=False):
-        mate = find_mate(e)
-        split_string = list_split(self.string[:-1], mate)
+        e_m = find_mate(e)
+        mate_index = self.index_of_mate(e)
 
-        if(is_s):
-            consumed_diff = self.diff[1:]
-            split_diff = list_split(consumed_diff, mate)
+        (tp_start, tp_end) = (self.start, mate_index)
+        (tpp_start, tpp_end) = (mate_index + 1, self.end-1)
 
-        else:
-            split_diff = [[], []]
+        tpp = Euler_Substring(self, tpp_start, tpp_end)
+        tp = Euler_Substring(self, tp_start, tp_end)
 
-        print("lsplitting " + str(self) + "at " + str(mate))
-        print("string=" + str(split_string) + " diff=" + str(split_diff))
+        return(tp, e_m, tpp, e)
 
-        tp = Euler_String(split_string[0], split_diff[1])
-        tpp = Euler_String(split_string[1], split_diff[0])
 
-        return(tp, mate, tpp, e)
+class Euler_Substring(Euler_String):
+    def __init__(self, parent, start, end):
+        self._string = parent.string
+        self.diff = parent.diff
+        self.start = start
+        self.end = end
 
 
 def generate_relevant_substrings(self, F):
@@ -303,5 +302,9 @@ def find_mate(c):
 def list_split(ls, x):
         i = ls.index(x)
         return [ls[0:i], ls[i+1:]]
-#    except(FailException):
-#        raise("gah")
+
+
+def is_empty(tup):
+    '''input: a tuple'''
+    print(tup)
+    return tup[0] == tup[1]
