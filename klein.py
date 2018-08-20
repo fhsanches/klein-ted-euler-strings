@@ -178,9 +178,9 @@ class Euler_String():
         print("removing " + str(symbol) + " from " + str(self.string))
         print("with i,j= " + str(self.start) + "," + str(self.end))
         if(self.string[self.start] == symbol):
-            return Euler_Substring(self, self.start+1, self.end)
+            return Euler_Substring(self, 1, len(self.string))
         elif(self.string[self.end-self.start-1] == symbol):
-            return Euler_Substring(self, self.start, self.end-1)
+            return Euler_Substring(self, 0, len(self.string)-1)
         else:
             text = "BadRemoval: " + str(symbol) + " from " + str(self.string)
             raise(Exception(text))
