@@ -147,15 +147,13 @@ class Euler_String():
     @property
     def string(self):
         # print("i,j= " + str(self.start) + "," + str(self.end))
-        return self._string[self.start:self.end]
+        return self._string  # [self.start:self.end]
 
     def __contains__(self, element):
         return(self.arcs[element])
 
-    # def __getitem__(self, index):
-    #     print("str= " + str(self.string) + " index= " + str(index) +
-    #           " start= " + str(self.start) + " end= " + str(self.end))
-    #     return self.string[index]
+    def __getitem__(self, index):
+        return self._string[index]
 
     # def __setitem__(self, index, new):
     #     self.string[index] = new
@@ -170,9 +168,18 @@ class Euler_String():
     def is_empty(self):
         return self.start == self.end
 
+    def substring(self, start, end):
+        sub_start = self.start + start
+        sub_end = self.start + end
+        return Euler_Substring(self, sub_start, sub_end)
+
     def diffence_symbol(self):
         return self.diff[0]
 
+    # vetor        abs   relativo
+    # [0, 1, 2, 3] end=4 end=end
+    # [0, 1, 2]    end=3 end=parent.end -1
+    #    [1, 2]    end=3 end = parent.end
     def remove(self, symbol):
         '''returns new substring without the symbol iff symbol is at an end'''
         print("removing " + str(symbol) + " from " + str(self.string))
@@ -221,9 +228,27 @@ class Euler_String():
 class Euler_Substring(Euler_String):
     def __init__(self, parent, start, end):
         self._string = parent._string
+        self.parent = parent
         self.diff = parent.diff
         self.start = start
         self.end = end
+
+    @property
+    def string(self):
+        return self._string[self.start:self.end]
+
+    def __getitem__(self, index):
+        print(self._string)
+        print("i=" + str(index) +
+              ", start= " + str(self.start) +
+              ", end= " + str(self.end))
+
+        if(index >= 0):
+            return self._string[index+self.start]
+        else:
+            # index = index * -1
+            # index = index + 1
+            return self._string[index + self.end]
 
 
 def generate_relevant_substrings(self, F):

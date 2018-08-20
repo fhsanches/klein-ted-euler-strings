@@ -145,17 +145,20 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(a[1], -3)
         self.assertEqual(a[-1], -5)
 
-        b = Euler_Substring(a, 1, 5)  # [-3, 3, -2, 4]
+        #                            [ 0,  1, 2,  3, 4,  5, 6,  7]
+        #                            [-8, -7,-6, -5,-4, -3,-2, -1]
+        #                parent is:  [ 2, -3, 3, -2, 4, -4, 5, -5]
+        b = a.substring(1, 5)  # #[-3, 3, -2, 4]
         self.assertEqual(b[0], -3)
         self.assertEqual(b[1], 3)
         self.assertEqual(b[-1], 4)
 
-        c = Euler_Substring(a, 1, 8)  # [-3, 3, -2, 4, -4, 5, -5]
+        c = a.substring(1, 8)  # [-3, 3, -2, 4, -4, 5, -5]
         self.assertEqual(c[0], -3)
         self.assertEqual(c[1], 3)
         self.assertEqual(c[-1], -5)
 
-        d = Euler_Substring(c, 1, 5)  # [3, -2, 4, -4]
+        d = c.substring(1, 5)  # [3, -2, 4, -4]
         self.assertEqual(d[0], 3)
         self.assertEqual(d[1], -2)
         self.assertEqual(d[-1], -4)
@@ -220,8 +223,8 @@ class TestSuite(unittest.TestCase):
         b = create_tree_b()
         expected = [2, 6, 9]
         result = b.special_subtrees()
+        result = map(lambda x: x.label, result)
         result.sort()
-        result = map(lambda x: x.label, result)        
         self.assertEqual(result, expected)
 
         # c:
