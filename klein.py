@@ -2,7 +2,7 @@
 
 from itertools import chain, imap
 
-arcs = {}
+INFTY = float('inf')
 
 
 class Arc:
@@ -17,7 +17,7 @@ class Arc:
             self.mate = self.create_mate()
         else:
             self.mate = mate
-        arcs[(s, t)] = self
+        s.arcs_dict[(s.label, t.label)] = self
 
     def create_mate(self):
         mate_label = find_mate(self.label)
@@ -26,33 +26,42 @@ class Arc:
 
     def euler_visit(self):
         ls = [self.label]
-        ls.extend(self.t.E())
+        ls.extend(self.t.euler_visit())
         ls.append(self.mate.label)
+        # ls.extend(self.t.E())
+        # ls.append(self.mate.label)
         return ls
 
 
 class Node:
-    def __init__(self, label):
+    def __init__(self, label, tree_root=None):
         self.children = []
         self.arcs = []
         self.label = label
         self.weigth = 1
         self.euler = None
+        self.root = None
+        if(not tree_root):
+            self.arcs_dict = {}
+        else:
+            self.arcs_dict = tree_root.arcs_dict
 
     def __iter__(self):
         for v in chain(*imap(iter, self.children)):
             yield v
         yield self
 
-    def euler_string_compute(self):
+    def euler_list_compute(self):
         res = []
         for arc in self.arcs:
-            res.extend(arc.euler_visit())
+            res.append(arc.label)
+            res.extend(arc.t.euler_list_compute())
         return res
 
     def E(self):
         if(not self.euler):
-            self.euler = self.euler_string_compute()
+            el = self.euler_list_compute()
+            self.euler = Euler_String(el)
         return self.euler
 
     def add_child(self, child):
@@ -77,8 +86,14 @@ class Node:
 
         return heavier_child
 
-    def post_processing(self):
+    def post_processing(self, root):
         self.calculate_weigth()
+        self.set_roots(self)
+
+    def set_roots(self, root):
+        self.root = root
+        for child in self.children:
+            child.set_roots(root)
 
     def heavy_path(self):
         path = [self]
@@ -89,30 +104,62 @@ class Node:
 
         return path
 
-    def difference_sequence(self, path=None):
+    def difference_sequence(self, E, pos, path):
         if(not self.children):  # is empty
             return []
         if(not path):
             path = self.heavy_path()
         else:
+            (st, ed) = pos
 
             v = path[1]  # self's child in P
 
-            p = arcs[(self, v)]
+            p = self.arcs_dict[(self, v)]
             q = p.mate
 
-            E = self.E()
+            rv = E.arcs[p.label]
+            vr = E.arcs[q.label]
 
-            T_left = list_split(E, p.label)[0] + [p.label]  # ending with p
-            T_right = [q.label] + list_split(E, q.label)[1]  # starting with q
+            T_left = E[st:rv]  # ending with p
+            T_right = E[vr:ed]  # starting with p
+
+            print(p.label)
+            print(q.label)
+            print("rv = " + str(rv) + " vr = " + str(vr))
+            print("T_left = " + str(T_left))
+            print("T_right = " + str(T_right))
+
+            # T_left = list_split(E, p.label)[0] + [p.label]  # ending with p
+            # T_right = [q.label] +list_split(E, q.label)[1]  # starting with q
 
             p = v.heavy_path()
-            res = T_left + T_right[::-1] + v.difference_sequence(p)
+            res = T_left + T_right[::-1] + v.difference_sequence(
+                E, pos, path)
+
+            self.difference_seq = res
 
             return res
 
-    def difference_symbol(self):
-        self.difference_sequence()[0]
+    def set_diff_dict(self):
+        diff = {}
+        euler = self.root.E()
+        i = 1
+        j = len(euler)
+
+        seq = self.difference_sequence()
+
+        for label in seq:
+            if(label == euler[i]):
+                diff[(i, j)] = 0
+                i += 1
+            elif(label == euler[j]):
+                diff[(i, j)] = -1
+                j -= 1
+            else:
+                raise Exception("Bad difference sequence")
+
+            euler.diff_dict = diff
+        # a
 
     def special_subtrees(self):
         hpath = self.heavy_path()
@@ -132,64 +179,41 @@ class Euler_String():
     Overrides access methods to the string
     '''
     def __init__(self, string):
-        self._string = string
+        self.string = string
 
-        self.arcs = [None] * (len(string)+1)
+        self.arcs = [None] * (len(string)*20+1)  # fixme esse *2 e' gambiarra
+        print("str= " + str(string))
+        print(self.arcs)
 
-        for (index, character) in enumerate(self._string):
-            self.arcs[character] = index
+        for (index, value) in enumerate(self.string):
+            print(value)
+            self.arcs[value] = index
 
         self.start = 0
         self.end = len(string)
 
-    @property
-    def string(self):
-        # print("i,j= " + str(self.start) + "," + str(self.end))
-        return self._string  # [self.start:self.end]
+        # self._difference_darts = {}
+        self.diff_dict = {}
+        self.diff_seq = None
 
-    def __contains__(self, element):
-        return(self.arcs[element])
-
-    def __getitem__(self, index):
-        return self._string[index]
-
-    # def __setitem__(self, index, new):
-    #     self.string[index] = new
-    #     return self.string[index]
+    def get_pos(self):
+        return(self.start, self.end)
 
     def __str__(self):
         return "<str: " + str(self.string) + ">"
 
-    def index_of(self, item):
-        return self.arcs[item]
+    def __getitem__(self, index):
+        return self.string[index]
 
-    def is_empty(self):
-        return self.start == self.end
-
-    def substring(self, start, end):
-        sub_start = self.start + start
-        sub_end = self.start + end
-        return Euler_Substring(self, sub_start, sub_end)
-
-    def diffence_symbol(self):
-        raise Exception("NYI")
-
-    # vetor        abs   relativo
-    # [0, 1, 2, 3] end=4 end=end
-    # [0, 1, 2]    end=3 end=parent.end -1
-    #    [1, 2]    end=3 end = parent.end
-    def remove(self, symbol):
-        '''returns new substring without the symbol iff symbol is at an end'''
-        print("removing " + str(symbol) + " from " + str(self.string))
-        print("with i,j= " + str(self.start) + "," + str(self.end))
-        if(self._string[self.start] == symbol):
-            return Euler_Substring(self, self.start+1, self.end)
-        elif(self._string[self.end-1] == symbol):
-            return Euler_Substring(self, self.start, self.end-1)
-        else:
-            text = "BadRemoval: " + str(symbol) + " from " + str(self.string)
-            raise(Exception(text))
-        return None
+    def diffence_symbol(self, pos):
+        (start, end) = pos
+        try:
+            x = self.diff_dict[(start, end)]
+        except Exception:
+            print("dict=" + str(self.diff_dict))
+            x = None
+            raise(Exception("BadDictAccess"))
+        return x
 
     def has_mate(self, symbol):
         return(symbol*(-1) in self.string)
@@ -205,8 +229,8 @@ class Euler_String():
         (tpp_start, tpp_end) = (self.start+1, mate_index)
         (tp_start, tp_end) = (mate_index + 1, self.end)
 
-        tpp = Euler_Substring(self, tpp_start, tpp_end)
-        tp = Euler_Substring(self, tp_start, tp_end)
+        tpp = (tpp_start, tpp_end)
+        tp = (tp_start, tp_end)
 
         return(e, tpp, e_m, tp)
 
@@ -217,61 +241,66 @@ class Euler_String():
         (tp_start, tp_end) = (self.start, mate_index)
         (tpp_start, tpp_end) = (mate_index + 1, self.end-1)
 
-        tpp = Euler_Substring(self, tpp_start, tpp_end)
-        tp = Euler_Substring(self, tp_start, tp_end)
+        tpp = (tpp_start, tpp_end)
+        tp = (tp_start, tp_end)
 
         return(tp, e_m, tpp, e)
 
+    def build_diff_dict(self, pos):
+        if(not self.diff_seq):
+            self.difference_sequence()
 
-class Euler_Substring(Euler_String):
-    def __init__(self, parent, start, end):
-        self._string = parent._string
-        self.parent = parent
-        self.start = start
-        self.end = end
+        i = self.start
+        j = self.end - 1
 
-    @property
-    def string(self):
-        return self._string[self.start:self.end]
+        for element in self.difference_seq:
+            element_pos = self.arcs[element]
+            if(element_pos == i):
+                self.diff_dict[(i, j)] = True
+            elif(element_pos == j):
+                self.diff_dict[(i, j)] = False
+            else:
+                raise Exception("Bad difference sequence")
 
-    def __getitem__(self, index):
-        print(self._string)
-        print("i=" + str(index) +
-              ", start= " + str(self.start) +
-              ", end= " + str(self.end))
-
-        if(index >= 0):
-            return self._string[index+self.start]
+    def remove(self, pos, symbol):
+        '''returns new substring without the symbol iff symbol is at an end'''
+        (start, end) = pos
+        if(self[start] == symbol):
+            return (start+1, end)
+        elif(self[end-1] == symbol):
+            return (start, end-1)
         else:
-            # index = index * -1
-            # index = index + 1
-            return self._string[index + self.end]
+            text = "BadRemoval: " + str(symbol) + " from " + str(self)
+            raise(Exception(text))
+        return None
 
+    def substring(self, parent, start, end):
+        sub_start = parent.start + start
+        sub_end = parent.start + end
+        return (sub_start, sub_end)
 
-def generate_relevant_substrings(self, F):
-    pass
-
-
-INFTY = float('inf')
+    def is_empty(self, pos):
+        (st, ed) = pos
+        return (st == ed)
 
 
 class Klein():
-    def delete_from_t(self, s, t):
-        if(t.is_empty()):
+    def delete_from_t(self, s, s_pos, t, t_pos):
+        if(t.is_empty(t_pos)):
             return INFTY
-        e = t.diffence_symbol()
+        e = t.diffence_symbol(t_pos)
         if(t.has_mate(e)):
-            return(self.dist(s, t.remove(e)) + self.cdel(e, t))
+            return(self.dist(s, t.remove(t_pos, e)) + self.cdel(e, t))
         else:
-            return(self.dist(s, t.remove(e)))
+            return(self.dist(s, t.remove(t_pos, e)))
 
-    def delete_from_s(self, s, t):
-        if(s.is_empty()):
+    def delete_from_s(self, s, s_pos, t, t_pos):
+        if(s.is_empty(s_pos)):
             return INFTY
-        if(t.is_empty()):
+        if(t.is_empty(t_pos)):
             e = s[-1]
         else:
-            if(t.diffence_symbol() == t[-1]):
+            if(t.diffence_symbol(t_pos) == t[-1]):
                 e = s[-1]
             else:
                 e = s[0]
@@ -280,11 +309,11 @@ class Klein():
         else:
             return self.dist(s.remove(e), t)
 
-    def match(self, s, t):
+    def match(self, s, s_pos, t, t_pos):
         print("match s=" + str(s) + " t=" + str(t))
-        if(s.is_empty() and t.is_empty()):
+        if(s.is_empty(s_pos) and t.is_empty(t_pos)):
             return 0
-        if(s.is_empty() or t.is_empty()):
+        if(s.is_empty(s_pos) or t.is_empty(t_pos)):
             return INFTY
         e = t.diffence_symbol()
         if(e == t[0]):
@@ -327,7 +356,9 @@ def list_split(ls, x):
         return [ls[0:i], ls[i+1:]]
 
 
-def is_empty(tup):
-    '''input: a tuple'''
-    print(tup)
-    return tup[0] == tup[1]
+#def is_empty(tup):
+#    '''input: a tuple'''
+#    print(tup)
+#    return tup[0] == tup[1]
+
+
