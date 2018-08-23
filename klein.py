@@ -357,18 +357,27 @@ class Euler_String():
 
 
 class Klein():
-    def delete_from_t(self, s, s_pos, t, t_pos):
+    def __init__(self, s, t):
+        self.s = s
+        self.t = t
+
+    def delete_from_t(self, s_pos, t_pos):
+        t = self.t
+
         if(t.is_empty(t_pos)):
             return INFTY
 
-        (next_t, e) = t.next_string(t_pos)
+        (next_t_pos, e) = t.next_string(t_pos)
 
-        if(t.has_mate(e, next_t)):
-            return(self.dist(s, s_pos, t, next_t) + self.cdel(e, t))
+        if(t.has_mate(e, next_t_pos)):
+            return(self.dist(s_pos, next_t_pos) + self.cdel(e, t))
         else:
-            return(self.dist(s, s_pos, t, next_t))
+            return(self.dist(s_pos, next_t_pos))
 
-    def delete_from_s(self, s, s_pos, t, t_pos):
+    def delete_from_s(self, s_pos, t_pos):
+        s = self.s
+        t = self.t
+
         (s_st, s_ed) = s_pos
         (t_st, t_ed) = t_pos
 
@@ -376,21 +385,24 @@ class Klein():
             return INFTY
         elif(t.is_empty(t_pos)):
             e = s[s_ed-1]
-            new_s = (s_st, s_ed-1)
+            next_s_pos = (s_st, s_ed-1)
         else:
             (next_t, symbol) = t.next_string(t_pos)
             if(symbol == t[t_ed-1]):
                 e = s[s_ed-1]
-                new_s = (s_st, s_ed-1)
+                next_s_pos = (s_st, s_ed-1)
             else:
                 e = s[s_st]
-                new_s = (s_st+1, s_ed)
+                next_s_pos = (s_st+1, s_ed)
         if(s.has_mate(e, s_pos)):
-            return self.dist(s, new_s, t, t_pos) + self.cdel(e, s)
+            return self.dist(next_s_pos, t_pos) + self.cdel(e, s)
         else:
-            return self.dist(s, new_s, t, t_pos)
+            return self.dist(next_s_pos, t_pos)
 
-    def match(self, s, s_pos, t, t_pos):
+    def match(self, s_pos, t_pos):
+        s = self.s
+        t = self.t
+
         if(s.is_empty(s_pos) and t.is_empty(t_pos)):
             return 0
         if(s.is_empty(s_pos) or t.is_empty(t_pos)):
@@ -409,15 +421,22 @@ class Klein():
             (tp, em, tpp, e) = t.split_last(e)
             (sp, epm, spp, ep) = s.split_last(e, True)
         return \
-            self.dist(s, sp, t, tp) + \
-            self.dist(s, spp, t, tpp) + \
+            self.dist(sp, tp) + \
+            self.dist(spp, tpp) + \
             self.cmatch(e, ep)
-    
-    def dist(self, s, s_pos, t, t_pos):
-        print 's = "' + i2n(s.string[s_pos[0]:s_pos[1]]) + '", t = "' + i2n(t.string[t_pos[0]:t_pos[1]]) + '"'
-        return min(self.delete_from_s(s, s_pos, t, t_pos),
-                   self.delete_from_t(s, s_pos, t, t_pos),
-                   self.match(s, s_pos, t, t_pos))
+
+    def dist(self, s_pos, t_pos):
+        s = self.s
+        t = self.t
+
+        print('s = "'
+              + i2n(s.string[s_pos[0]:s_pos[1]])
+              + '", t = "'
+              + i2n(t.string[t_pos[0]:t_pos[1]]) + '"')
+
+        return min(self.delete_from_s(s_pos, t_pos),
+                   self.delete_from_t(s_pos, t_pos),
+                   self.match(s_pos, t_pos))
 
     def cdel(self, symbol, string):
         return 1
@@ -427,11 +446,13 @@ class Klein():
             return 0
         return 1
 
+
 def i2n(lista):
     answer = ''
     for i in lista:
         answer += chr(ord('a') + i - 1) if i > 0 else chr(ord('A') - i - 1)
     return answer
+
 
 def find_mate(c):
     return c * -1

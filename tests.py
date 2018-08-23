@@ -126,8 +126,6 @@ def create_tree_singleton():
 
 class TestSuite(unittest.TestCase):
 
-    k = Klein()
-
     def test_arc(self):
         tree = create_tree()
 
@@ -418,54 +416,58 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(at.next_string((1, 8)), ((1, 7), -3))
         self.assertEqual(at.next_string((1, 7)), ((1, 6), 3))
 
-    # def test_remove_from_s(self):
-    #     k = Klein()
+    def test_remove_from_s(self):
 
-    #     at = create_tree()
-    #     a = at.E()
-    #     bt = create_tree_b()
-    #     b = bt.E()
-    #     ct = create_tree_c()
-    #     c = ct.E()
-    #     ot = create_tree_singleton()
-    #     one = ot.E()
+        at = create_tree()
+        a = at.E()
+        bt = create_tree_b()
+        b = bt.E()
+        ct = create_tree_c()
+        c = ct.E()
+        ot = create_tree_singleton()
+        one = ot.E()
 
-    #     one_pos = one.get_pos()
-    #     a_pos = a.get_pos()
-    #     b_pos = b.get_pos()
-    #     c_pos = c.get_pos()
+        one_pos = one.get_pos()
+        a_pos = a.get_pos()
+        b_pos = b.get_pos()
+        c_pos = c.get_pos()
 
-    #     self.assertEqual(k.delete_from_s(one, one_pos, one, one_pos),
-    #                      float('inf'))
-    #     self.assertEqual(k.delete_from_s(a, a_pos, one, one_pos), 4)
-    #     self.assertEqual(k.delete_from_s(b, b_pos, one, one_pos), 10)
-    #     self.assertEqual(k.delete_from_s(c, c_pos, one, one_pos), 10)
+        k1 = Klein(one, one)
+        self.assertEqual(k1.delete_from_s(one_pos, one_pos), float('inf'))
+        k2 = Klein(a, one)
+        self.assertEqual(k2.delete_from_s(a_pos, one_pos), 4)
+        k3 = Klein(b, one)
+        self.assertEqual(k3.delete_from_s(b_pos, one_pos), 10)
+        k4 = Klein(c, one)
+        self.assertEqual(k4.delete_from_s(c_pos, one_pos), 10)
 
-    # def test_remove_from_t(self):
-    #     k = Klein()
+    def test_remove_from_t(self):
 
-    #     at = create_tree()
-    #     a = at.E()
-    #     bt = create_tree_b()
-    #     b = bt.E()
-    #     ct = create_tree_c()
-    #     c = ct.E()
-    #     ot = create_tree_singleton()
-    #     one = ot.E()
+        at = create_tree()
+        a = at.E()
+        bt = create_tree_b()
+        b = bt.E()
+        ct = create_tree_c()
+        c = ct.E()
+        ot = create_tree_singleton()
+        one = ot.E()
 
-    #     one_pos = one.get_pos()
-    #     a_pos = a.get_pos()
-    #     b_pos = b.get_pos()
-    #     c_pos = c.get_pos()
+        one_pos = one.get_pos()
+        a_pos = a.get_pos()
+        b_pos = b.get_pos()
+        c_pos = c.get_pos()
 
-    #     self.assertEqual(k.delete_from_t(one, one_pos, one, one_pos),
-    #                      float('inf'))
-    #     self.assertEqual(k.delete_from_t(one, one_pos, a, a_pos), 4)
-    #     self.assertEqual(k.delete_from_t(one, one_pos, b, b_pos), 10)
-    #     self.assertEqual(k.delete_from_t(one, one_pos, c, c_pos), 10)
+        k1 = Klein(one, one)
+        self.assertEqual(k1.delete_from_t(one_pos, one_pos),
+                         float('inf'))
+        k2 = Klein(one, a)
+        self.assertEqual(k2.delete_from_t(one_pos, a_pos), 4)
+        k3 = Klein(one, b)
+        self.assertEqual(k3.delete_from_t(one_pos, b_pos), 10)
+        k4 = Klein(one, c)
+        self.assertEqual(k4.delete_from_t(one_pos, c_pos), 10)
 
     def test_match(self):
-        k = Klein()
 
         at = create_tree()
         a = at.E()
@@ -481,11 +483,16 @@ class TestSuite(unittest.TestCase):
         c_pos = c.get_pos()
         one_pos = one.get_pos()
 
-        # self.assertEqual(k.match(one, one_pos, one, one_pos), 0)
-        self.assertEqual(k.match(a, a_pos, a, a_pos), 0)
-        # self.assertEqual(k.match(b, b_pos, b, b_pos), 0)
-        # self.assertGreater(k.match(a, a_pos, b, b_pos), 0)
-        # self.assertGreater(k.match(b, b_pos, c, c_pos), 0)
+        k1 = Klein(one, one)
+        self.assertEqual(k1.match(one_pos, one_pos), 0)
+        k2 = Klein(a, a)
+        self.assertEqual(k2.match(a_pos, a_pos), 0)
+        k3 = Klein(b, b)
+        self.assertEqual(k3.match(b_pos, b_pos), 0)
+        k4 = Klein(a, b)
+        self.assertGreater(k4.match(a_pos, b_pos), 0)
+        k5 = Klein(b, c)
+        self.assertGreater(k5.match(b_pos, c_pos), 0)
 
 
 #   a
