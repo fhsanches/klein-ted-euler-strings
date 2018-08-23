@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from klein import Node, Euler_String, Klein
+from klein import Node, Euler_String, Klein, list_split
 import unittest
 
 
@@ -14,11 +14,14 @@ def create_tree():
     # |
     # e
 
+    # bdeEDBcC
+    # 01234567
+
     a = Node(1)
-    b = Node(2)
-    c = Node(3)
-    d = Node(4)
-    e = Node(5)
+    b = Node(2, a)
+    c = Node(3, a)
+    d = Node(4, a)
+    e = Node(5, a)
 
     a.add_child(b)
     a.add_child(c)
@@ -41,6 +44,9 @@ def create_tree_b():
     # e h i   j
     #         |
     #         k
+
+    # bdeEDBcfhHFgiIjkKJGC
+    # 01234567890123456780
 
     a = Node(1)
     b = Node(2, a)
@@ -82,6 +88,8 @@ def create_tree_c():
     #            |
     #            k
 
+    #bdhHDeEB
+
     a = Node(1)
     b = Node(2, a)
     c = Node(3, a)
@@ -120,10 +128,10 @@ class TestSuite(unittest.TestCase):
 
     k = Klein()
 
-    # def test_list_split(self):
-    #     ls = [1, 2, 3, 4]
-    #     self.assertEqual(list_split(ls, 3), [[1, 2], [4]])
-    #     self.assertEqual(list_split(ls, 2), [[1], [3, 4]])
+    def test_list_split(self):
+        ls = [1, 2, 3, 4]
+        self.assertEqual(list_split(ls, 3), [[1, 2], [4]])
+        self.assertEqual(list_split(ls, 2), [[1], [3, 4]])
 
     def test_arc(self):
         tree = create_tree()
@@ -138,37 +146,32 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(a.t, a.mate.s)
         self.assertEqual(a.mate, a.mate.mate.mate)
 
+    def test_arc_dict(self):
+        a = create_tree()
+        self.assertEqual(len(a.arcs_dict), 8)
+        b = create_tree_b()
+        self.assertEqual(len(b.arcs_dict), 20)
+        c = create_tree_b()
+        self.assertEqual(len(c.arcs_dict), 20)
+
     def test_euler(self):
         a = create_tree()
 
         self.assertEqual(a.E().string, [2, 4, 5, -5, -4, -2, 3, -3])
-        self.assertEqual(a.children[0].E().string, [4, 5, -5, -4])
-        self.assertEqual(a.children[1].E().string, [])
+        #self.assertEqual(a.children[0].E().string, [4, 5, -5, -4])
+        #self.assertEqual(a.children[1].E().string, [])
 
-    # def test_string_index(self):
-    #     euler_string_a = Euler_String([2, -3, 3, -2, 4, -4, 5, -5])
-    #     self.assertEqual(a[0], 2)
-    #     self.assertEqual(a[1], -3)
-    #     self.assertEqual(a[-1], -5)
+    def test_has_mate(self):
+        a = Euler_String([1, -1, 2, -2, -3, 3, -4, 5])
+        a_pos = a.get_pos()
 
-    #     #                            [ 0,  1, 2,  3, 4,  5, 6,  7]
-    #     #                            [-8, -7,-6, -5,-4, -3,-2, -1]
-    #     #                parent is:  [ 2, -3, 3, -2, 4, -4, 5, -5]
-    #     b = a.substring(a_str, 1, 5)  # #[-3, 3, -2, 4]
-    #     self.assertEqual(b[0], -3)
-    #     self.assertEqual(b[1], 3)
-    #     self.assertEqual(b[-1], 4)
-
-    #     c = a.substring(a_str1, 8)  # [-3, 3, -2, 4, -4, 5, -5]
-    #     c_str = c.get_pos()
-    #     self.assertEqual(c[0], -3)
-    #     self.assertEqual(c[1], 3)
-    #     self.assertEqual(c[-1], -5)
-
-    #     d = c.substring(c_str, 1, 5)  # [3, -2, 4, -4]
-    #     self.assertEqual(d[0], 3)
-    #     self.assertEqual(d[1], -2)
-    #     self.assertEqual(d[-1], -4)
+        self.assertTrue(a.has_mate(1, a_pos))
+        self.assertTrue(a.has_mate(-1, a_pos))
+        self.assertTrue(a.has_mate(3, a_pos))
+        self.assertTrue(a.has_mate(4, a_pos))
+        self.assertFalse(a.has_mate(-4, a_pos))
+        self.assertFalse(a.has_mate(5, a_pos))
+        self.assertFalse(a.has_mate(6, a_pos))
 
     def test_weights(self):
         a = create_tree()
@@ -185,12 +188,20 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(output, expected)
 
     def test_difference_sequence(self):
+        # a:
+        #   a
+        #  / \
+        # b   c
+        # |
+        # d
+        # |
+        # e
+
         a = create_tree()
         expected = [2, -3, 3, -2, 4, -4, 5, -5]
-        self.assertEqual(a.difference_sequence(a.E(),
-                                               (0, 0),
-                                               a.heavy_path()),
-                         expected)
+        b = a.children[1]
+        self.assertEqual(a.difference_sequence(a.E()), expected)
+        self.assertEqual(b.difference_sequence(a.E()), [])
 
     def test_dict_constructors(self):
         a = Node(1)
@@ -263,26 +274,67 @@ class TestSuite(unittest.TestCase):
 
         # c'': e
 
+        # [bdhHDeEBcfFgiIjkKJGC]
+        # [01234567890123456780]
         c = create_tree_c()
         expected = [2, 5, 6, 9]
         result = c.special_subtrees()
-        result.sort()
         result = map(lambda x: x.label, result)
+        result.sort()
         self.assertEqual(result, expected)
+
+    def test_get_subtree_indexes(self):
+
+        a = create_tree()
+        b = create_tree_b()
+        c = create_tree_c()
+
+        print("label:::")
+        print(a.children[0].label)
+
+        self.assertEqual(a.children[0].get_subtree_indexes(), (1, 5))
+        self.assertEqual(b.children[1].get_subtree_indexes(), (7, 19))
+        self.assertEqual(c.children[1].children[1].get_subtree_indexes(),  # g
+                         (12, 18))
+
+    def test_special_subtrees_diff_dict(self):
+
+        #   a
+        #  / \
+        # b   c
+        # |
+        # d
+        # |
+        # e
+
+        # a:
+        # bdeEDBcC
+        # 01234567
+
+        # b:
+        # bdeEDBcfhHFgiIjkKJGC
+        # 01234567890123456780
+
+
+        a = create_tree()
+        b = create_tree_b()
+        c = create_tree_c()
+
+        # cases = [a, b, c]
+        #cases = [a]
+
+        cases = [b]
+
+        for tree in cases:
+            for subtree in tree.special_subtrees():
+                pair = tree.get_subtree_indexes()
+                self.assertIn(pair, tree.E().diff_dict)
 
     def test_multiple_difference_sequences(self):
         c = create_tree_c()
         c.special_subtrees()
 
     def test_string_removal(self):
-        # a = Euler_String("abcd", "adcb")
-        # b = Euler_String("a", "a")
-        # self.assertEqual(a.remove('a').string, "bcd")
-        # self.assertEqual(a.remove('d').string, "abc")
-        # self.assertEqual(a.remove('a').remove('d').string, "bc")
-        # self.assertTrue(b.remove('a').is_empty())
-        # self.assertRaises(Exception, a.remove, 'c')
-
         a = Euler_String([1, 2, 3, 4])
         a_pos = a.get_pos()
         b = Euler_String([1])
@@ -300,10 +352,6 @@ class TestSuite(unittest.TestCase):
         self.assertRaises(Exception, a.remove, 3)
 
     def test_is_empty(self):
-        # a = Euler_String("", "")
-        # b = Euler_String("a", "a")
-        # c = b.remove("a")
-
         a = Euler_String([])
         a_str = a.get_pos()
         b = Euler_String([1])
@@ -341,86 +389,108 @@ class TestSuite(unittest.TestCase):
         self.assertEqual((e, em), expected_e)
         self.assertEqual((ls1, ls2), expected_res_str)
 
-    def test_match(self):
-        k = Klein()
-        a = Euler_String([1, 2, 3, 4])
-        a_pos = a.get_pos()
-        b = Euler_String([])
-        b_pos = b.get_pos()
-        c = Euler_String([])
-        c_pos = c.get_pos()
+    def test_diff_dict(self):
+        a = create_tree()
+        a_s = a.E()
+        # a = [2, 4, 5, -5, -4, -2, 3, -3]
+        # diff seq = [2, -3, 3, -2, 4, -4, 5, -5]
 
-        self.assertEqual(k.match(b, b_pos, c, c_pos), 0)
-        self.assertEqual(k.match(a, a_pos, b, b_pos),
-                         k.match(a, a_pos, c, c_pos))
+        # a = [2, 4, 5, -5, -4, -2, 3, -3], 2
+        self.assertEqual(a_s.diff_dict[(0, 8)],  0)
+        # a = [4, 5, -5, -4, -2, 3, -3], -3
+        self.assertEqual(a_s.diff_dict[(1, 8)],  1)
+        # a = [4, 5, -5, -4, -2, 3], 3
+        self.assertEqual(a_s.diff_dict[(1, 7)],  1)
+        # a = [4, 5, -5, -4, -2], -2
+        self.assertEqual(a_s.diff_dict[(1, 6)],  1)
+        # a = [4, 5, -5, -4], 4
+        self.assertEqual(a_s.diff_dict[(1, 5)],  0)
+        # a = [5, -5, -4], -4
+        self.assertEqual(a_s.diff_dict[(2, 5)],  1)
+        # a = [5, -5], 5
+        self.assertEqual(a_s.diff_dict[(2, 4)],  0)
+        # a = [-5], -5
+        self.assertEqual(a_s.diff_dict[(3, 4)],  0)
+
+    def test_next_string(self):
+        a = create_tree()
+        at = a.E()
+        # a = [2, 4, 5, -5, -4, -2, 3, -3]
+        # diff seq = [2, -3, 3, -2, 4, -4, 5, -5]
+        pos = at.get_pos()
+
+        self.assertEqual(at.next_string(pos), ((1, 8), 2))
+        self.assertEqual(at.next_string((1, 8)), ((1, 7), -3))
+        self.assertEqual(at.next_string((1, 7)), ((1, 6), 3))
 
     def test_remove_from_s(self):
         k = Klein()
-        # a = Euler_String("a", "a")
-        # b = Euler_String("Aa", "Aa")
-        # c = Euler_String("Aa", "aA")
-        # e = Euler_String("abcdDCBA", "AaBbCcDd")
-        # f = Euler_String("abcdDC", "abcdDC")
-        # empty = Euler_String(0, 0)
 
-        a = Euler_String([1])
+        at = create_tree()
+        a = at.E()
+        bt = create_tree_b()
+        b = bt.E()
+        ct = create_tree_c()
+        c = ct.E()
+        ot = create_tree_singleton()
+        one = ot.E()
+
+        one_pos = one.get_pos()
         a_pos = a.get_pos()
-        b = Euler_String([-1, 1])
         b_pos = b.get_pos()
-        c = Euler_String([-1, 1])
         c_pos = c.get_pos()
-        e = Euler_String([1, 2, 3, 4, -4, -3, -2, -1])
-        e_pos = e.get_pos()
-        f = Euler_String([1, 2, 3, 4, -4, -3])
-        f_pos = f.get_pos()
-        empty = Euler_String([])
-        empt_pos = empty.get_pos()
 
-        self.assertEqual(k.delete_from_s(empty, e_pos, empty, e_pos),
+        self.assertEqual(k.delete_from_s(one, one_pos, one, one_pos),
                          float('inf'))
-        self.assertEqual(k.delete_from_s(a, a_pos, empty, empt_pos), 0)
-        self.assertEqual(k.delete_from_s(b, b_pos, empty, empt_pos), 1)
-        self.assertEqual(k.delete_from_s(c, c_pos, empty, empt_pos), 1)
-        self.assertEqual(k.delete_from_s(e, e_pos, empty, empt_pos), 4)
-        self.assertEqual(k.delete_from_s(f, f_pos, empty, empt_pos), 2)
-        self.assertEqual(k.delete_from_s(e, e_pos, f, f_pos), 2)
+        self.assertEqual(k.delete_from_s(a, a_pos, one, one_pos), 4)
+        self.assertEqual(k.delete_from_s(b, b_pos, one, one_pos), 10)
+        self.assertEqual(k.delete_from_s(c, c_pos, one, one_pos), 10)
 
     def test_remove_from_t(self):
         k = Klein()
 
-        a = create_tree().E()
-        b = create_tree_b().E()
-        bp = create_tree_b().E()
-        c = create_tree_c().E()
-        one = create_tree_singleton().E()
+        at = create_tree()
+        a = at.E()
+        bt = create_tree_b()
+        b = bt.E()
+        ct = create_tree_c()
+        c = ct.E()
+        ot = create_tree_singleton()
+        one = ot.E()
 
-        self.assertEqual(k.delete_from_t(one, one), float('inf'))
-        self.assertEqual(k.delete_from_t(one, a), 5)
-        self.assertEqual(k.delete_from_t(one, b), 11)
-        self.assertEqual(k.delete_from_t(one, bp), 11)
-        self.assertEqual(k.delete_from_t(one, c), 11)
-        pass
+        one_pos = one.get_pos()
+        a_pos = a.get_pos()
+        b_pos = b.get_pos()
+        c_pos = c.get_pos()
 
-    def test_has_mate(self):
-        # a = Euler_String("aAbBCcDf", "")
+        self.assertEqual(k.delete_from_t(one, one_pos, one, one_pos),
+                         float('inf'))
+        self.assertEqual(k.delete_from_t(one, one_pos, a, a_pos), 4)
+        self.assertEqual(k.delete_from_t(one, one_pos, b, b_pos), 10)
+        self.assertEqual(k.delete_from_t(one, one_pos, c, c_pos), 10)
 
-        # self.assertTrue(a.has_mate("a"))
-        # self.assertTrue(a.has_mate("A"))
-        # self.assertTrue(a.has_mate("c"))
-        # self.assertTrue(a.has_mate("d"))
-        # self.assertFalse(a.has_mate("D"))
-        # self.assertFalse(a.has_mate("f"))
-        # self.assertFalse(a.has_mate("g"))
+    def test_match(self):
+        k = Klein()
 
-        a = Euler_String([1, -1, 2, -2, -3, 3, -4, 5])
+        at = create_tree()
+        a = at.E()
+        bt = create_tree_b()
+        b = bt.E()
+        ct = create_tree_c()
+        c = ct.E()
+        ot = create_tree_singleton()
+        one = ot.E()
 
-        self.assertTrue(a.has_mate(1))
-        self.assertTrue(a.has_mate(-1))
-        self.assertTrue(a.has_mate(3))
-        self.assertTrue(a.has_mate(4))
-        self.assertFalse(a.has_mate(-4))
-        self.assertFalse(a.has_mate(5))
-        self.assertFalse(a.has_mate(6))
+        a_pos = a.get_pos()
+        b_pos = b.get_pos()
+        c_pos = c.get_pos()
+        one_pos = one.get_pos()
+
+        self.assertEqual(k.match(one, one_pos, one, one_pos), 0)
+        #self.assertEqual(k.match(a, a_pos, a, a_pos), 0)
+        self.assertEqual(k.match(b, b_pos, b, b_pos), 0)
+        self.assertGreater(k.match(a, a_pos, b, b_pos), 0)
+        self.assertGreater(k.match(b, b_pos, c, c_pos), 0)
 
 
 #   a
@@ -430,6 +500,9 @@ class TestSuite(unittest.TestCase):
 # d
 # |
 # e
+
+# bdeEDBcC
+# 01234567
 
 if(__name__ == '__main__'):
     unittest.main()
