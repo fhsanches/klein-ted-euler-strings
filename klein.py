@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from itertools import chain, imap
+from itertools import chain
 
 INFTY = float('inf')
 
@@ -46,7 +46,7 @@ class Node:
             self.arcs_dict = self.root.arcs_dict
 
     def __iter__(self):
-        for v in chain(*imap(iter, self.children)):
+        for v in chain(*map(iter, self.children)):
             yield v
         yield self
 

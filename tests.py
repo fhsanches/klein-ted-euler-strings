@@ -128,11 +128,6 @@ class TestSuite(unittest.TestCase):
 
     k = Klein()
 
-    def test_list_split(self):
-        ls = [1, 2, 3, 4]
-        self.assertEqual(list_split(ls, 3), [[1, 2], [4]])
-        self.assertEqual(list_split(ls, 2), [[1], [3, 4]])
-
     def test_arc(self):
         tree = create_tree()
 
