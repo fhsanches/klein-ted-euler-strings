@@ -195,11 +195,11 @@ class Node:
 
     def special_subtrees(self):
         hpath = self.heavy_path()
-        ls = []
-        for node in hpath:
+        n = len(hpath)
+        ls = [self]
+        for i, node in enumerate(hpath):
             for child in node.children:
-                if(child not in hpath):
-                    ls.append(child)
+                if child != hpath[(i + 1) % n]:
                     ls.extend(child.special_subtrees())
 
         return ls
@@ -285,7 +285,7 @@ class Euler_String():
         (st, ed) = pos
         mate = find_mate(symbol)
         x = self.arcs[mate]
-        if(x >= st and x < ed):
+        if st <= x < ed: #(x >= st and x < ed):
             return True
         else:
             return False
@@ -412,8 +412,9 @@ class Klein():
             self.dist(s, sp, t, tp) + \
             self.dist(s, spp, t, tpp) + \
             self.cmatch(e, ep)
-
+    
     def dist(self, s, s_pos, t, t_pos):
+        print 's = "' + i2n(s.string[s_pos[0]:s_pos[1]]) + '", t = "' + i2n(t.string[t_pos[0]:t_pos[1]]) + '"'
         return min(self.delete_from_s(s, s_pos, t, t_pos),
                    self.delete_from_t(s, s_pos, t, t_pos),
                    self.match(s, s_pos, t, t_pos))
@@ -426,6 +427,11 @@ class Klein():
             return 0
         return 1
 
+def i2n(lista):
+    answer = ''
+    for i in lista:
+        answer += chr(ord('a') + i - 1) if i > 0 else chr(ord('A') - i - 1)
+    return answer
 
 def find_mate(c):
     return c * -1
