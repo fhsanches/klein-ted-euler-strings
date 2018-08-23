@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from klein import Node, Euler_String, Klein, list_split
+from klein import Node, Euler_String, Klein
 import unittest
 
 

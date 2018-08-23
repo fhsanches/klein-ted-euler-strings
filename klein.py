@@ -438,9 +438,9 @@ def find_mate(c):
     return c * -1
 
 
-def list_split(ls, x):
-        i = ls.index(x)
-        return [ls[0:i], ls[i+1:]]
+# def list_split(ls, x):
+#         i = ls.index(x)
+#         return [ls[0:i], ls[i+1:]]
 
 # def is_empty(tup):
 #     '''input: a tuple'''
