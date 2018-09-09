@@ -1,4 +1,4 @@
-A
+# A
 #   a
 #  / \
 # b   c
@@ -8,9 +8,19 @@ A
 # e
 
 # bdeEDBcC
-# 01234567
+# bdeEDBc
+# bdeEDB
+# deEDB
+# deED
+# eED
+# eE
+# E
+# ""
 
-B
+# 01234567
+# diff_seq = [-3, 3, 2, -2, 4, -4, 5, -5]
+
+# B
 #   a
 #  / \
 # b   c
