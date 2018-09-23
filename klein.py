@@ -58,6 +58,15 @@ class Node:
         else:
             self.arcs_dict = self.root.arcs_dict
 
+    def print_tree(self):
+        print(str(self.label) + " -> ", end='')
+
+        if self.children:
+            self.children[0].print_tree()
+        for child in self.children[1:]:
+            print("\n  - ", end='')
+            child.print_tree()
+
     def euler_list_compute(self):
         res = []
         for arc in self.arcs:
@@ -102,9 +111,8 @@ class Node:
 
         return heavier_child
 
-    def post_processing(self, root):
+    def post_processing(self):
         self.calculate_weigth()
-        # self.set_roots(self)
         self.E()  # calculate euler strings
         self.proccess_special_subtrees()
 
@@ -228,6 +236,36 @@ class Node:
             j = E.arcs[q]
 
             return(i, j+1)
+
+
+def build_tree_from_dict(adj_dict, root_val=1):
+    '''
+    builds a tree from a dict in the format:
+    {a : [b,c], c: [d,e,f], f = [g] ...}
+    leaves can be ommited as keys
+    the root must be in the dict
+    '''
+    nodes = {}
+
+    root = Node(root_val)
+    nodes[root_val] = root
+
+    for (parent_val, child_values) in adj_dict.items():
+        if not nodes.get(parent_val):
+            nodes[parent_val] = Node(parent_val)
+
+        parent = nodes[parent_val]
+
+        for child_val in child_values:
+            if not nodes.get(child_val):
+                nodes[child_val] = Node(child_val, root)
+
+            child = nodes[child_val]
+
+            parent.add_child(child)
+
+    root.post_processing()
+    return root
 
 
 class Euler_String():
@@ -409,13 +447,13 @@ class Klein():
 
     @memoize
     def dist(self, s_pos, t_pos):
-        s = self.s
-        t = self.t
+        # s = self.s
+        # t = self.t
 
-        print('s = "'
-              + i2n(s.string[s_pos[0]:s_pos[1]])
-              + '", t = "'
-              + i2n(t.string[t_pos[0]:t_pos[1]]) + '"')
+        # print('s = "'
+        #       + i2n(s.string[s_pos[0]:s_pos[1]])
+        #       + '", t = "'
+        #       + i2n(t.string[t_pos[0]:t_pos[1]]) + '"')
 
         return min(self.delete_from_s(s_pos, t_pos),
                    self.delete_from_t(s_pos, t_pos),
@@ -439,8 +477,6 @@ def i2n(lista):
 
 def find_mate(c):
     return c * -1
-
-
 
 
 # def list_split(ls, x):

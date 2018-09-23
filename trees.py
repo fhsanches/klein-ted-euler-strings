@@ -34,6 +34,7 @@
 # bdeEDBcfhHFgiIjkKJGC
 # 01234567890123456780
 
+# C
 #     a
 #    /  \
 #   b    c
@@ -46,3 +47,27 @@
 
 # [bdhHDeEBcfFgiIjkKJGC]
 # [01234567890123456780]
+
+# D
+# modified version of c:
+# moved h (8) from d (4) to k (11) and deleted e (5) and f (6)
+
+#     a
+#    /  \
+#   b    c
+#  /      \
+# d        g
+#         / \
+#        i   j
+#            |
+#            k
+#            |
+#            h
+
+# bdhHDeEB
+
+# E
+
+# F
+
+
