@@ -4,7 +4,6 @@ import functools
 
 INFTY = float('inf')
 
-
 def memoize(func):
     cache = func.cache = {}
 
@@ -73,7 +72,6 @@ class Node:
             res.append(arc.label)
             res.extend(arc.t.euler_list_compute())
             res.append(arc.mate.label)
-        # self.euler = res
         return res
 
     def E(self):
@@ -194,10 +192,6 @@ class Node:
             diff = euler.diff_dict
 
         (i, j) = pos
-
-        # if(not difference_sequence):  # leaf node, empty difference sequence
-        # diff[(i, j)] = i
-        #   diff[(i+1, j)] = i+1
 
         difference_sequence = difference_sequence
 
@@ -369,8 +363,7 @@ class Euler_String():
 
     def is_empty(self, pos):
         (st, ed) = pos
-        return (st >= ed)  # FIXME is >= happening? == should be enough!
-
+        return (st >= ed)
 
 class Klein():
     def __init__(self, s, t):
@@ -447,14 +440,6 @@ class Klein():
 
     @memoize
     def dist(self, s_pos, t_pos):
-        # s = self.s
-        # t = self.t
-
-        # print('s = "'
-        #       + i2n(s.string[s_pos[0]:s_pos[1]])
-        #       + '", t = "'
-        #       + i2n(t.string[t_pos[0]:t_pos[1]]) + '"')
-
         return min(self.delete_from_s(s_pos, t_pos),
                    self.delete_from_t(s_pos, t_pos),
                    self.match(s_pos, t_pos))
@@ -478,12 +463,11 @@ def i2n(lista):
 def find_mate(c):
     return c * -1
 
+def Klein_TED(dict_t1,dict_t2):
+    t1 = build_tree_from_dict(dict_t1)
+    t2 = build_tree_from_dict(dict_t2)
+    (t1_E, t2_E) = (t1.E(), t2.E())
+    k = Klein(t1_E, t2_E)
+    return k.dist(t1_E.get_pos(), t2_E.get_pos())
 
-# def list_split(ls, x):
-#         i = ls.index(x)
-#         return [ls[0:i], ls[i+1:]]
 
-# def is_empty(tup):
-#     '''input: a tuple'''
-#     print(tup)
-#     return tup[0] == tup[1]
