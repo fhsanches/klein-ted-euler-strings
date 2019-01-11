@@ -2,7 +2,18 @@
 
 from klein import Node, Euler_String, Klein, build_tree_from_dict
 import unittest
+import random
 
+def create_random_tree(size=1000, seed=0):
+    tree_size = 0
+    children = []
+
+    for node in 0..size: # for every node to be created
+        for candidate in 0..node: # for every parent candidate
+            pass
+
+    random.seed(seed)
+    
 
 def create_tree():
 

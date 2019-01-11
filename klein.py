@@ -232,7 +232,7 @@ class Node:
             return(i, j+1)
 
 
-def build_tree_from_dict(adj_dict, root_val=1):
+def build_tree_from_dict(adj_dict, root_val=0):
     '''
     builds a tree from a dict in the format:
     {a : [b,c], c: [d,e,f], f = [g] ...}
@@ -463,11 +463,24 @@ def i2n(lista):
 def find_mate(c):
     return c * -1
 
+def substrings(e1):
+    return [(i,j) for i in range(e1.start, e1.end-1) for j in range(i+1, e1.end)]
+
+def substrings_t(a,b):
+    return [(i,j) for i in range(a,b-1) for j in range(i+1, b)]
+
+def rel_s(t):
+    return t.diff_dict.keys()
+
 def Klein_TED(dict_t1,dict_t2):
     t1 = build_tree_from_dict(dict_t1)
     t2 = build_tree_from_dict(dict_t2)
     (t1_E, t2_E) = (t1.E(), t2.E())
     k = Klein(t1_E, t2_E)
+
+    for s in substrings(t1_E):
+        for t in rel_s(t2_E):
+            k.dist(s, t)
+            print("did it")
+    
     return k.dist(t1_E.get_pos(), t2_E.get_pos())
-
-
