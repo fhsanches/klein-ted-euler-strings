@@ -481,6 +481,6 @@ def Klein_TED(dict_t1,dict_t2):
     for s in substrings(t1_E):
         for t in rel_s(t2_E):
             k.dist(s, t)
-            print("did it")
+            print("did a test")
     
     return k.dist(t1_E.get_pos(), t2_E.get_pos())

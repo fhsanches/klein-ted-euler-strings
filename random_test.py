@@ -11,7 +11,7 @@ from timeit import default_timer as timer
 import numpy as np
 import sys
 
-sys.setrecursionlimit(10000) #Python is a good language.
+#sys.setrecursionlimit(10000) #Python is a good language.
 
 #import unittest
 import random
@@ -114,17 +114,15 @@ def test(seed=0):
     # else:
     #     random.seed(seed)
 
-    if(len(argv) < 3):
+    if(len(argv) < 4):
         print("Usage: ./random_test.py |F| |G| #trials")
+        return
 
-    (size_F, size_G, trials) = argv
+    print(argv)
+    (size_F, size_G, trials) = map(lambda x: int(x), argv[1:])
 
     random.seed(seed)
-    print(test_for_size(argv[0], 500, 1))
-
- 
-    
-
+    print(test_for_size(size_F, size_G, trials))
 
 #h = hpy()
 #print h.heap()
