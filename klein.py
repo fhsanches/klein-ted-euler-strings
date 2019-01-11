@@ -440,6 +440,14 @@ class Klein():
 
     @memoize
     def dist(self, s_pos, t_pos):
+
+        #microoptimization to reduce trivial subproblems
+        if(self.s.is_empty(s_pos)):
+            s_pos = (0,0)
+        if(self.t.is_empty(t_pos)):
+            t_pos = (0,0)
+
+        # print("dist" + str(s_pos) + str(t_pos))
         return min(self.delete_from_s(s_pos, t_pos),
                    self.delete_from_t(s_pos, t_pos),
                    self.match(s_pos, t_pos))
@@ -464,13 +472,16 @@ def find_mate(c):
     return c * -1
 
 def substrings(e1):
-    return [(i,j) for i in range(e1.start, e1.end-1) for j in range(i+1, e1.end)]
-
-def substrings_t(a,b):
-    return [(i,j) for i in range(a,b-1) for j in range(i+1, b)]
+    ss = [(i,j) for i in range(e1.start, e1.end-1) for j in range(i+1, e1.end)]
+    #return sorted(ss, key = lambda tup: tup[1]- tup[0])
+    return ss
+    # return [(i,j) for i in range(e1.start, e1.end-1) for j in range(i+1, e1.end)]
 
 def rel_s(t):
-    return t.diff_dict.keys()
+    pairs = t.diff_dict.keys()
+    res = pairs
+    res = sorted(pairs, key = lambda tup:(tup[1] - tup[0]))
+    return res               
 
 def Klein_TED(dict_t1,dict_t2):
     t1 = build_tree_from_dict(dict_t1)
@@ -478,9 +489,12 @@ def Klein_TED(dict_t1,dict_t2):
     (t1_E, t2_E) = (t1.E(), t2.E())
     k = Klein(t1_E, t2_E)
 
+    # print(rel_s(t2_E))
+
     for s in substrings(t1_E):
         for t in rel_s(t2_E):
+            print("precomputing " + str((s,t)))
             k.dist(s, t)
-            print("did a test")
+            # print("did a test")
     
     return k.dist(t1_E.get_pos(), t2_E.get_pos())

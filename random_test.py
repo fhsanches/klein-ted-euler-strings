@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from klein import Klein_TED
-from state import getstate
+#from state import getstate
 from sys import argv
 
 #from guppy import hpy #profiler
@@ -11,7 +11,7 @@ from timeit import default_timer as timer
 import numpy as np
 import sys
 
-#sys.setrecursionlimit(10000) #Python is a good language.
+sys.setrecursionlimit(100000) #Python is a good language.
 
 #import unittest
 import random
@@ -95,13 +95,13 @@ def test_for_size(size_F=10, size_G=10, trials=10):
 
         timers.append(end-start)
 
-        #print(res)
+        print(res)
 
     times = np.array(timers)
-    avg = np.mean(times)
+    mean = np.mean(times)
     std = np.std(times)
 
-    print("average = " + str(avg) + ", std = " + str(std))
+    print("mean = " + str(mean) + ", std = " + str(std))
     return timers
 
  
