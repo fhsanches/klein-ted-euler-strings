@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import functools
-
 INFTY = float('inf')
 
 def memoize(func):
@@ -369,6 +367,8 @@ class Klein():
     def __init__(self, s, t):
         self.s = s
         self.t = t
+        self.tests_num = 0
+
 
     def delete_from_t(self, s_pos, t_pos):
         t = self.t
@@ -438,19 +438,21 @@ class Klein():
             self.dist(spp, tpp) + \
             self.cmatch(e, ep)
 
-    @memoize
     def dist(self, s_pos, t_pos):
 
-        #microoptimization to reduce trivial subproblems
-        if(self.s.is_empty(s_pos)):
-            s_pos = (0,0)
-        if(self.t.is_empty(t_pos)):
-            t_pos = (0,0)
+        self.tests_num +=1
+
+        if (s_pos,t_pos) in self.delta.keys():
+            return self.delta[(s_pos,t_pos)]
 
         # print("dist" + str(s_pos) + str(t_pos))
-        return min(self.delete_from_s(s_pos, t_pos),
+
+        res = min(self.delete_from_s(s_pos, t_pos),
                    self.delete_from_t(s_pos, t_pos),
                    self.match(s_pos, t_pos))
+        
+        self.delta[(s_pos, t_pos)] = res
+        return res
 
     def cdel(self, symbol, string):
         return 1
@@ -484,17 +486,25 @@ def rel_s(t):
     return res               
 
 def Klein_TED(dict_t1,dict_t2):
+    '''returns a pair 
+    (x,y), 
+    where:
+    x = the value for the TED
+    y = the number of times "dist" was called (including trivial calls)
+    '''
+    
     t1 = build_tree_from_dict(dict_t1)
     t2 = build_tree_from_dict(dict_t2)
     (t1_E, t2_E) = (t1.E(), t2.E())
     k = Klein(t1_E, t2_E)
 
-    # print(rel_s(t2_E))
+    delta = {}
+    k.delta = delta
 
     for s in substrings(t1_E):
         for t in rel_s(t2_E):
-            print("precomputing " + str((s,t)))
-            k.dist(s, t)
-            # print("did a test")
-    
-    return k.dist(t1_E.get_pos(), t2_E.get_pos())
+            delta[s,t] = k.dist(s, t)
+            
+    result = (k.dist(t1_E.get_pos(), t2_E.get_pos()), k.tests_num)
+
+    return result
