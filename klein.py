@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import functools
 
 INFTY = float('inf')
 
@@ -438,12 +439,13 @@ class Klein():
             self.dist(spp, tpp) + \
             self.cmatch(e, ep)
 
+    @memoize
     def dist(self, s_pos, t_pos):
 
         self.tests_num +=1
 
-        if (s_pos,t_pos) in self.delta.keys():
-            return self.delta[(s_pos,t_pos)]
+        # if (s_pos,t_pos) in self.delta.keys():
+        #     return self.delta[(s_pos,t_pos)]
 
         # print("dist" + str(s_pos) + str(t_pos))
 
@@ -451,7 +453,7 @@ class Klein():
                    self.delete_from_t(s_pos, t_pos),
                    self.match(s_pos, t_pos))
         
-        self.delta[(s_pos, t_pos)] = res
+        # self.delta[(s_pos, t_pos)] = res
         return res
 
     def cdel(self, symbol, string):
@@ -498,13 +500,16 @@ def Klein_TED(dict_t1,dict_t2):
     (t1_E, t2_E) = (t1.E(), t2.E())
     k = Klein(t1_E, t2_E)
 
-    delta = {}
-    k.delta = delta
+    # delta = {}
+    # k.delta = delta
 
     for s in substrings(t1_E):
         for t in rel_s(t2_E):
-            delta[s,t] = k.dist(s, t)
+            #delta[s,t] = k.dist(s, t)
+            k.dist(s, t)
             
-    result = (k.dist(t1_E.get_pos(), t2_E.get_pos()), k.tests_num)
+    result = (k.dist(t1_E.get_pos(), t2_E.get_pos()), k.tests_num) #pair
+
+    k.dist.cache.clear()
 
     return result
