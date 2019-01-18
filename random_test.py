@@ -17,7 +17,6 @@ sys.setrecursionlimit(100000) #Python is a good language.
 import random
 
 def create_random_balanced_tree(size=10):
-    # parent = {1 : None}
     tree = {0 : []}
 
     for node_num in range(1,size):
@@ -39,8 +38,6 @@ def create_random_balanced_tree(size=10):
         
         parent = random.choices(parent_candidates, weigth)[0]
 
-
-            
         tree[parent].append(node_num)
 
     # print(tree)
@@ -48,26 +45,39 @@ def create_random_balanced_tree(size=10):
     return tree
 
 def create_random_unbalanced_tree(size=10):
-#    tree_size = 0
-    #parent = {0: None}
-    tree = {}
+    tree = {0 : []}
+    nodes = [0]
 
-    for node_num in range(2,size): # for every node to be created minus the root
-        parent = random.randrange(0, node_num)
+    for node_num in range(1,size):
+
+        parent = random.choices(nodes)[0]
 
         if parent not in tree:
-            tree[parent] = []
+            tree[parent] = []        
             
         tree[parent].append(node_num)
-
-
-    for node_num in range(2,size): # adding leaves
-        if node_num not in tree:
-            tree[node_num] = []
-
-    # print(tree)
+        nodes.append(node_num)
 
     return tree
+
+
+# def create_random_unbalanced_tree(size=10):
+#     tree = {0 : []}
+
+#     for node_num in range(1,size): # for every node to be created minus the root
+#         parent = random.randrange(0, node_num)
+
+#         if parent not in tree:
+#             tree[parent] = []
+            
+#         tree[parent].append(node_num)
+
+
+#     for node_num in range(2,size): # adding leaves
+#         if node_num not in tree:
+#             tree[node_num] = []
+
+#     return tree
         
     
 
@@ -82,27 +92,32 @@ def change_tree_randomly(tree, num_changes=10, seed=100):
     #TODO
     pass
 
-def test_for_size(size_F=10, size_G=10, trials=10):
+
+def test_for_size(size_F=10, size_G=10, trials=10, is_imba=False):
     timers = []
+    results = []
 
     for x in range(0,trials):
-        t1 = create_random_balanced_tree(size_F)
-        t2 = create_random_balanced_tree(size_G)
+        if(is_imba):
+            t1 = create_random_unbalanced_tree(size_F)
+            t2 = create_random_unbalanced_tree(size_G)
+        else:
+            t1 = create_random_balanced_tree(size_F)
+            t2 = create_random_balanced_tree(size_G)
         
         start = timer()
-        res = Klein_TED(t1,t2)
+        (dist, ncalls) = Klein_TED(t1,t2)
         end = timer()
 
-        timers.append(end-start)
+        time = end-start
+        res = (dist, ncalls, time)
+        results.append(res)
 
-        print(res)
+    # times = np.array(timers)
+    # mean = np.mean(times)
+    # std = np.std(times)
 
-    times = np.array(timers)
-    mean = np.mean(times)
-    std = np.std(times)
-
-    print("mean = " + str(mean) + ", std = " + str(std))
-    return timers
+    return results
 
  
 def test(seed=0):    
@@ -118,11 +133,16 @@ def test(seed=0):
         print("Usage: ./random_test.py |F| |G| #trials")
         return
 
-    print(argv)
-    (size_F, size_G, trials) = map(lambda x: int(x), argv[1:])
+    print(argv)    
+    (size_F, size_G, trials) = map(lambda x: int(x), argv[1:4])
 
     random.seed(seed)
-    print(test_for_size(size_F, size_G, trials))
+
+    if(len(argv) > 4):
+        print(test_for_size(size_F, size_G, trials, True))
+        return
+    else:
+        print(test_for_size(size_F, size_G, trials, False))
 
 #h = hpy()
 #print h.heap()
