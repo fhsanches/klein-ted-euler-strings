@@ -269,7 +269,7 @@ class Euler_String():
     def __init__(self, string):
         self.string = string  # list of labels
 
-        self.arcs = [None] * (len(string)*2+2)  # fixme esse *2 e' gambiarra
+        self.arcs = [None] * (len(string))  # fixme esse *2 e' gambiarra
 
         for (index, label) in enumerate(self.string):
             self.arcs[label] = index

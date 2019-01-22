@@ -104,7 +104,7 @@ def test_for_size(size_F=10, size_G=10, trials=10, is_imba=False):
         else:
             t1 = create_random_balanced_tree(size_F)
             t2 = create_random_balanced_tree(size_G)
-        
+
         start = timer()
         (dist, ncalls) = Klein_TED(t1,t2)
         end = timer()
