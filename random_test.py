@@ -162,17 +162,28 @@ def test(seed=0):
 
     random.seed(seed)
 
-    for size in [40, 50, 60, 70, 80, 90,100,110,120,130]:
-        size_F = size
-        size_G = size + 10
-        test_for_size(size_F, size_G, trials, True)
-
-
-    # if(len(argv) > 4):
+    # for size in [40, 50, 60, 70, 80, 90,100,110,120,130]:
+    #     size_F = size
+    #     size_G = size + 10
     #     test_for_size(size_F, size_G, trials, True)
-    #     return
-    # else:
-    #     test_for_size(size_F, size_G, trials, False)
+
+    # for size in [40, 50, 60, 70, 80, 90]:
+    #     size_F = size
+    #     size_G = 90
+    #     test_for_size(size_F, size_G, trials, True)
+
+    # for size in [40, 50, 60, 70, 80, 90]:
+    #     size_F = size
+    #     size_G = 90
+    #     test_for_size(size_F, size_G, trials, True)
+
+
+
+    if(len(argv) > 4):
+        test_for_size(size_F, size_G, trials, True)
+        return
+    else:
+        test_for_size(size_F, size_G, trials, False)
 
 
 # h = hpy()
