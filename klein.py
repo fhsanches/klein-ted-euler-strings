@@ -3,6 +3,8 @@ import functools
 
 INFTY = float('inf')
 
+# this is more efficient for bigger trees, using a handbuilt dict
+# is more efficient for smaller trees
 def memoize(func):
     cache = func.cache = {}
 
@@ -57,12 +59,12 @@ class Node:
             self.arcs_dict = self.root.arcs_dict
 
     def print_tree(self):
-        print(str(self.label) + " -> ", end='')
+        # print(str(self.label) + " -> ", end='')
 
         if self.children:
             self.children[0].print_tree()
         for child in self.children[1:]:
-            print("\n  - ", end='')
+            # print("\n  - ", end='')
             child.print_tree()
 
     def euler_list_compute(self):
@@ -269,7 +271,7 @@ class Euler_String():
     def __init__(self, string):
         self.string = string  # list of labels
 
-        self.arcs = [None] * (len(string))  # fixme esse *2 e' gambiarra
+        self.arcs = [None] * (len(string) + 2)
 
         for (index, label) in enumerate(self.string):
             self.arcs[label] = index
@@ -364,12 +366,12 @@ class Euler_String():
         (st, ed) = pos
         return (st >= ed)
 
+
 class Klein():
     def __init__(self, s, t):
         self.s = s
         self.t = t
         self.tests_num = 0
-
 
     def delete_from_t(self, s_pos, t_pos):
         t = self.t
@@ -442,17 +444,17 @@ class Klein():
     @memoize
     def dist(self, s_pos, t_pos):
 
-        self.tests_num +=1
+        self.tests_num += 1
 
-        # if (s_pos,t_pos) in self.delta.keys():
-        #     return self.delta[(s_pos,t_pos)]
+        # if (s_pos, t_pos) in self.delta.keys():
+        #     return self.delta[(s_pos, t_pos)]
 
         # print("dist" + str(s_pos) + str(t_pos))
 
         res = min(self.delete_from_s(s_pos, t_pos),
-                   self.delete_from_t(s_pos, t_pos),
-                   self.match(s_pos, t_pos))
-        
+                  self.delete_from_t(s_pos, t_pos),
+                  self.match(s_pos, t_pos))
+
         # self.delta[(s_pos, t_pos)] = res
         return res
 
@@ -475,26 +477,31 @@ def i2n(lista):
 def find_mate(c):
     return c * -1
 
+
 def substrings(e1):
-    ss = [(i,j) for i in range(e1.start, e1.end-1) for j in range(i+1, e1.end)]
-    #return sorted(ss, key = lambda tup: tup[1]- tup[0])
+    ss = [(i, j) for i in range(e1.start, e1.end-1)
+          for j in range(i+1, e1.end)]
+    # return sorted(ss, key = lambda tup: tup[1]- tup[0])
     return ss
-    # return [(i,j) for i in range(e1.start, e1.end-1) for j in range(i+1, e1.end)]
+    # return \
+    # [(i,j) for i in range(e1.start, e1.end-1) for j in range(i+1, e1.end)]
+
 
 def rel_s(t):
     pairs = t.diff_dict.keys()
     res = pairs
-    res = sorted(pairs, key = lambda tup:(tup[1] - tup[0]))
-    return res               
+    res = sorted(pairs, key=lambda tup: (tup[1] - tup[0]))
+    return res
 
-def Klein_TED(dict_t1,dict_t2):
-    '''returns a pair 
-    (x,y), 
+
+def Klein_TED(dict_t1, dict_t2):
+    '''returns a pair
+    (x,y),
     where:
     x = the value for the TED
     y = the number of times "dist" was called (including trivial calls)
     '''
-    
+
     t1 = build_tree_from_dict(dict_t1)
     t2 = build_tree_from_dict(dict_t2)
     (t1_E, t2_E) = (t1.E(), t2.E())
@@ -505,10 +512,10 @@ def Klein_TED(dict_t1,dict_t2):
 
     for s in substrings(t1_E):
         for t in rel_s(t2_E):
-            #delta[s,t] = k.dist(s, t)
+            # delta[s, t] = k.dist(s, t)
             k.dist(s, t)
-            
-    result = (k.dist(t1_E.get_pos(), t2_E.get_pos()), k.tests_num) #pair
+
+    result = (k.dist(t1_E.get_pos(), t2_E.get_pos()), k.tests_num)  # pair
 
     k.dist.cache.clear()
 
