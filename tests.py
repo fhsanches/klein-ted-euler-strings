@@ -2,18 +2,18 @@
 
 from klein import Node, Euler_String, Klein, build_tree_from_dict
 import unittest
-import random
+# import random
 
-def create_random_tree(size=1000, seed=0):
-    tree_size = 0
-    children = []
+# def create_random_tree(size=1000, seed=0):
+#     tree_size = 0
+#     children = []
 
-    for node in 0..size: # for every node to be created
-        for candidate in 0..node: # for every parent candidate
-            pass
+#     for node in 0..size: # for every node to be created
+#         for candidate in 0..node: # for every parent candidate
+#             pass
 
-    random.seed(seed)
-    
+#     random.seed(seed)
+
 
 def create_tree():
 
@@ -29,12 +29,12 @@ def create_tree():
     # 01234567
 
     nodes = {
-        1: [2, 3],
-        2: [4],
-        4: [5],
+        'a': ['b', 'c'],
+        'b': ['d'],
+        'd': ['e'],
     }
 
-    a = build_tree_from_dict(nodes)
+    a = build_tree_from_dict(nodes, 'a')
 
     # print()
     # a.print_tree()
@@ -64,23 +64,26 @@ def create_tree_b():
         3: [6, 7],
         6: [8],
         7: [9, 10],
-        10: [11]
+        10: [11],
     })
 
     return a
 
 
+z = {'a': ['b'], 3: [0], None: [4, 5, 6]}
+
+
 def create_tree_c():
 
-    #     a
-    #    /  \
-    #   b    c
-    #  / \  / \
-    # d   ef   g
-    # |       / \
-    # h      i   j
-    #            |
-    #            k
+    #      a
+    #    /   \
+    #   b     c
+    #  / \   / \
+    # d   e f   g
+    # |        / \
+    # h       i   j
+    #             |
+    #             k
 
     # bdhHDeEB
 
@@ -101,22 +104,22 @@ def create_tree_d():
     # moved h (8) from d (4) to k (11) and deleted e (5) and f (6)
 
     #     a
-    #    /  \
-    #   b    c
-    #  /      \
-    # d        g
-    #         / \
-    #        i   j
-    #            |
-    #            k
-    #            |
-    #            h
+    #    / \
+    #   b   c
+    #  /     \
+    # d       g
+    #        / \
+    #       i   j
+    #           |
+    #           k
+    #           |
+    #           h
 
     # bdhHDeEB
 
     a = build_tree_from_dict({
         1: [2, 3],
-        2: [5],
+        2: [4],
         4: [],
         3: [7],
         7: [9, 10],
@@ -224,7 +227,7 @@ class TestSuite(unittest.TestCase):
     def test_heavy_path(self):
         a = create_tree()
         # expected = ["a", "b", "d", "e"]
-        expected = [1, 2, 4, 5]
+        expected = [0, 1, 2, 4]
         output_ls = a.heavy_path()
         output = list(map(lambda x: x.label, output_ls))
         self.assertEqual(output, expected)
@@ -246,8 +249,8 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(b.difference_sequence(a.E()), [])
 
     def test_dict_constructors(self):
-        a = Node(1)
-        b = Node(2, a)
+        a = Node(1, 'a')
+        b = Node(2, 'b')
         self.assertEqual(a.arcs_dict, b.arcs_dict)
 
     def test_special_subtrees(self):
@@ -264,7 +267,7 @@ class TestSuite(unittest.TestCase):
         #     c
 
         a = create_tree()
-        expected = [1, 3]
+        expected = ['a', 'c']
         result = list(map(lambda x: x.label, a.special_subtrees()))
         self.assertEqual(result, expected)
 
@@ -357,13 +360,12 @@ class TestSuite(unittest.TestCase):
         # bdeEDBcfhHFgiIjkKJGC
         # 01234567890123456780
 
-
         a = create_tree()
         b = create_tree_b()
         c = create_tree_c()
 
         cases = [a, b, c]
-        #cases = [a]
+        # cases = [a]
 
         # cases = [b]
 
@@ -449,7 +451,8 @@ class TestSuite(unittest.TestCase):
         a = create_tree()
         a_s = a.E()
         # a = [2, 4, 5, -5, -4, -2, 3, -3]
-        # diff seq = [-3, 3, 2, -2, 4, -4, 5, -5]
+        # a = [1, 3, 4, -4, -3, -1, 2, -2]
+        # diff seq = [-2, 2, 1, -1, 3, -3, 4, -4]
         # bdeEDBcC
         # bdeEDBc
         # bdeEDB

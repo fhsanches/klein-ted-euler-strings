@@ -45,9 +45,10 @@ class Arc:
 
 
 class Node:
-    def __init__(self, label, has_root=None):
+    def __init__(self, value, label, has_root=None):
         self.children = []
         self.arcs = []
+        self.value = value
         self.label = label
         self.weigth = 1
         self.euler = None
@@ -143,7 +144,13 @@ class Node:
 
         return path
 
-    def difference_sequence(self, E, pos=None, path=None, path_pos=1):
+    def difference_sequence(self, E, pos=None, path=None, path_pos=0):
+        '''
+        E = euler string
+        pos = pair with position
+        path = path for which it is being calculated (default heavy)
+        path pos = index in path of the root being
+        '''
         if(not self.children):  # is empty
             return []
         else:
@@ -151,11 +158,12 @@ class Node:
                 path = self.heavy_path()
 
             if(not pos):
-                (st, ed) = (0, len(E.string))
+                # (st, ed) = (0, len(E.string))
+                (st, ed) = (E.start, E.end)
             else:
                 (st, ed) = pos
 
-            v = path[path_pos]  # self's child in P
+            v = path[path_pos+1]  # self's child in P
 
             p = self.arcs_dict[(self.label, v.label)]
             q = p.mate
@@ -204,7 +212,14 @@ class Node:
                 diff[(i, j)] = 1
                 j -= 1
             else:
-                raise Exception("Bad difference sequence")
+                raise Exception("Bad difference sequence "
+                                + str(label)
+                                + " vs "
+                                + str(euler[i])
+                                + ","
+                                + str(euler[j-1])
+                                + " in \n" + str(difference_sequence)
+                                + " for \n" +str(euler))
 
             euler.diff_dict = diff
 
@@ -233,7 +248,56 @@ class Node:
             return(i, j+1)
 
 
-def build_tree_from_dict(adj_dict, root_val=0):
+class Indexer():
+    '''
+    relates each label with an index
+    1 instance per tree
+    tables will be kept in memory
+    '''
+    def __init__(self):
+        self.i = 0
+        self.label_to_i = {}
+        self.i_to_label = {}
+
+    def count(self):
+        '''
+        acts as a counter
+        '''
+        self.i += 1
+        return self.i - 1
+
+    def transform_dict(self, adj_dict, root_label):
+        '''
+        receives a dict in the form: {label: [label1, label...]}
+        returns a dict in the form: {(0, label): [(1, label1), (2, label2)...]
+        '''
+
+        label_to_i = self.label_to_i
+        i_to_label = self.i_to_label
+
+        label_to_i[root_label] = self.count()
+
+        for (label, children_label) in adj_dict.items():
+            if label not in label_to_i:
+                i = self.count()
+                label_to_i[label] = i
+                i_to_label[i] = label
+            for child_label in children_label:
+                if child_label not in label_to_i:
+                    i = self.count()
+                    label_to_i[child_label] = i
+                    i_to_label[i] = child_label
+
+        new_dict = {}
+        for label, children_label in adj_dict.items():
+            new_dict[(self.label_to_i[label], label)] = \
+                                      [(self.label_to_i[clabel], clabel)
+                                       for clabel in children_label]
+
+        return new_dict
+
+
+def build_tree_from_dict(adj_dict, root_label=0):
     '''
     builds a tree from a dict in the format:
     {a : [b,c], c: [d,e,f], f = [g] ...}
@@ -242,22 +306,30 @@ def build_tree_from_dict(adj_dict, root_val=0):
     '''
     nodes = {}
 
-    root = Node(root_val)
-    nodes[root_val] = root
+    # transform dict to use identifiers instead of labels
+    i = Indexer()
+    adj_dict = i.transform_dict(adj_dict, root_label)  # form (i, label)
 
+    root = Node(0, root_label)
+    nodes[0] = root
+
+    # build the tree
     for (parent_val, child_values) in adj_dict.items():
-        if not nodes.get(parent_val):
-            nodes[parent_val] = Node(parent_val)
+        if not nodes.get(parent_val[0]):
+            nodes[parent_val[0]] = Node(parent_val[0], parent_val[1])
 
-        parent = nodes[parent_val]
+        parent = nodes[parent_val[0]]
 
         for child_val in child_values:
-            if not nodes.get(child_val):
-                nodes[child_val] = Node(child_val, root)
+            if not nodes.get(child_val[0]):
+                nodes[child_val[0]] = Node(child_val[0], child_val[1], root)
 
-            child = nodes[child_val]
+            child = nodes[child_val[0]]
 
             parent.add_child(child)
+            print("added child " + str(child.value) + " of " + str(parent.value))
+            print(parent.children)
+            print(root.children)
 
     root.post_processing()
     return root
@@ -269,12 +341,13 @@ class Euler_String():
     Overrides access methods to the string
     '''
     def __init__(self, string):
-        self.string = string  # list of labels
+        self.string = string  # list of values
 
-        self.arcs = [None] * (len(string) + 2)
+        self.arcs = [None] * (len(string)*2 + 2)
 
-        for (index, label) in enumerate(self.string):
-            self.arcs[label] = index
+        for (index, val) in enumerate(self.string):
+            print(index,val)
+            self.arcs[val] = index
 
         self.start = 0
         self.end = len(string)
