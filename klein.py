@@ -7,17 +7,17 @@ INFTY = float('inf')
 # this is more efficient for bigger trees, using a handbuilt dict
 # is more efficient for smaller trees
 
-def memoize(func):
-    cache = func.cache = {}
+# def memoize(func):
+#     cache = func.cache = {}
 
-    @functools.wraps(func)
-    def memoized_func(*args, **kwargs):
-        key = str(args) + str(kwargs)
-        if key not in cache:
-            cache[key] = func(*args, **kwargs)
-        return cache[key]
+#     @functools.wraps(func)
+#     def memoized_func(*args, **kwargs):
+#         key = str(args) + str(kwargs)
+#         if key not in cache:
+#             cache[key] = func(*args, **kwargs)
+#         return cache[key]
 
-    return memoized_func
+#     return memoized_func
 
 
 class Arc:
@@ -218,7 +218,7 @@ class Node:
                                 + ","
                                 + str(euler[j-1])
                                 + " in \n" + str(difference_sequence)
-                                + " for \n" +str(euler))
+                                + " for \n" + str(euler))
 
             euler.diff_dict = diff
 
@@ -445,6 +445,8 @@ class Klein():
         self.t = g.E()
         self.tests_num = 0
 
+        self.delta = {}
+
     def delete_from_t(self, s_pos, t_pos):
         t = self.t
 
@@ -513,19 +515,19 @@ class Klein():
             self.dist(spp, tpp) + \
             self.cmatch(ep, e)
 
-    @memoize
+    #@memoize
     def dist(self, s_pos, t_pos):
 
         self.tests_num += 1
 
-        # if (s_pos, t_pos) in self.delta.keys():
-        #     return self.delta[(s_pos, t_pos)]
+        if (s_pos, t_pos) in self.delta.keys():
+            return self.delta[(s_pos, t_pos)]
 
         res = min(self.delete_from_s(s_pos, t_pos),
                   self.delete_from_t(s_pos, t_pos),
                   self.match(s_pos, t_pos))
 
-        # self.delta[(s_pos, t_pos)] = res
+        self.delta[(s_pos, t_pos)] = res
         return res
 
     def cdel(self, val1):
@@ -593,6 +595,6 @@ def Klein_TED(dict_t1, dict_t2):
 
     result = (k.dist(t1_E.get_pos(), t2_E.get_pos()), k.tests_num)  # pair
 
-    k.dist.cache.clear()
+    # k.dist.cache.clear()
 
     return result

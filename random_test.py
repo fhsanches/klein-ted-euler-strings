@@ -14,7 +14,7 @@ from timeit import default_timer as timer
 import numpy as np
 import sys
 
-sys.setrecursionlimit(100000)  # Python is a good language.
+# sys.setrecursionlimit(100000)  # Python is a good language.
 
 
 def create_random_balanced_tree(size=10):
@@ -27,7 +27,7 @@ def create_random_balanced_tree(size=10):
         for pc in range(0, node_num):
             if pc not in tree:
                 tree[pc] = []
-                
+
             # w = (1 - node_num - len(tree[pc]))/(node_num)
             w = 1/(len(tree[pc])+1)
             parent_candidates.append(pc)

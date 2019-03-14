@@ -142,16 +142,16 @@ def create_tree_e():
     # added h
 
     #     a
-    #    /  \
-    #   l    c
-    #  /      \
-    # d        g
-    #         / \
-    #        i   j
-    #            |
-    #            k
-    #            |
-    #            h
+    #    / \
+    #   l   c
+    #  /     \
+    # d       g
+    #        / \
+    #       i   j
+    #           |
+    #           k
+    #           |
+    #           h
 
     # bdhHDeEB
 
@@ -581,10 +581,10 @@ class TestSuite(unittest.TestCase):
         self.assertGreater(k5.match(b_pos, c_pos), 0)
 
         k6 = Klein(ct, dt)
-        # self.assertEqual(k6.match(c_pos, d_pos), 4)
+        self.assertEqual(k6.match(c_pos, d_pos), 4)
 
         k7 = Klein(dt, et)
-        # self.assertEqual(k7.match(d_pos, e_pos), 1)
+        self.assertEqual(k7.match(d_pos, e_pos), 1)
 
         k7 = Klein(ct, et)
         self.assertEqual(k7.match(c_pos, e_pos), 5)
