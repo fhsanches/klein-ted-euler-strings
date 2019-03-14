@@ -157,7 +157,7 @@ def create_tree_e():
 
     a = build_tree_from_dict({
         1: [12, 3],
-        12: [5],
+        12: [4],
         4: [],
         3: [7],
         7: [9, 10],
