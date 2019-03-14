@@ -3,8 +3,10 @@ import functools
 
 INFTY = float('inf')
 
+
 # this is more efficient for bigger trees, using a handbuilt dict
 # is more efficient for smaller trees
+
 def memoize(func):
     cache = func.cache = {}
 
@@ -19,13 +21,13 @@ def memoize(func):
 
 
 class Arc:
-    def __init__(self, s, t, label=None, mate=None):  # source, target
+    def __init__(self, s, t, value=None, mate=None):  # source, target
         '''
         initializes arc, creates mate (if not given), add self to "arcs" dict
         '''
         self.s = s
         self.t = t
-        self.label = label
+        self.value = value
         if(mate is None):
             self.mate = self.create_mate()
         else:
@@ -33,8 +35,8 @@ class Arc:
         s.arcs_dict[(s.label, t.label)] = self
 
     def create_mate(self):
-        mate_label = find_mate(self.label)
-        mate = Arc(self.t, self.s, mate_label, self)
+        mate_value = find_mate(self.value)
+        mate = Arc(self.t, self.s, mate_value, self)
         return mate
 
     def euler_visit(self):
@@ -60,20 +62,17 @@ class Node:
             self.arcs_dict = self.root.arcs_dict
 
     def print_tree(self):
-        # print(str(self.label) + " -> ", end='')
-
         if self.children:
             self.children[0].print_tree()
         for child in self.children[1:]:
-            # print("\n  - ", end='')
             child.print_tree()
 
     def euler_list_compute(self):
         res = []
         for arc in self.arcs:
-            res.append(arc.label)
+            res.append(arc.value)
             res.extend(arc.t.euler_list_compute())
-            res.append(arc.mate.label)
+            res.append(arc.mate.value)
         return res
 
     def E(self):
@@ -91,7 +90,7 @@ class Node:
 
     def add_child(self, child):
         self.children.append(child)
-        arc = Arc(self, child, child.label)
+        arc = Arc(self, child, child.value)
         self.arcs.append(arc)
 
     def calculate_weigth(self):
@@ -168,8 +167,8 @@ class Node:
             p = self.arcs_dict[(self.label, v.label)]
             q = p.mate
 
-            rv = E.arcs[p.label]
-            vr = E.arcs[q.label]
+            rv = E.arcs[p.value]
+            vr = E.arcs[q.value]
 
             T_left = E[st:rv]  # ending with p
             T_right = E[vr+1:ed]  # starting with p
@@ -239,8 +238,8 @@ class Node:
         if(not self.children):
             return (0, 0)
         else:
-            p = self.arcs[0].label
-            q = self.arcs[-1].mate.label
+            p = self.arcs[0].value
+            q = self.arcs[-1].mate.value
 
             i = E.arcs[p]
             j = E.arcs[q]
@@ -327,11 +326,9 @@ def build_tree_from_dict(adj_dict, root_label=0):
             child = nodes[child_val[0]]
 
             parent.add_child(child)
-            print("added child " + str(child.value) + " of " + str(parent.value))
-            print(parent.children)
-            print(root.children)
 
     root.post_processing()
+    root.indexer = i
     return root
 
 
@@ -341,12 +338,12 @@ class Euler_String():
     Overrides access methods to the string
     '''
     def __init__(self, string):
-        self.string = string  # list of values
+        self.string = string  # list of values, eg. [1, 3, 4, -4, -3, 1, 2, -2]
 
-        self.arcs = [None] * (len(string)*2 + 2)
+        self.arcs = [None] * (len(string) + 4)
 
+        # index arcs so I can find them in O(1)
         for (index, val) in enumerate(self.string):
-            print(index,val)
             self.arcs[val] = index
 
         self.start = 0
@@ -441,9 +438,11 @@ class Euler_String():
 
 
 class Klein():
-    def __init__(self, s, t):
-        self.s = s
-        self.t = t
+    def __init__(self, f, g):
+        self.f = f
+        self.g = g
+        self.s = f.E()
+        self.t = g.E()
         self.tests_num = 0
 
     def delete_from_t(self, s_pos, t_pos):
@@ -455,7 +454,7 @@ class Klein():
         (next_t_pos, e) = t.next_string(t_pos)
 
         if(t.has_mate(e, next_t_pos)):
-            return(self.dist(s_pos, next_t_pos) + self.cdel(e, t))
+            return(self.dist(s_pos, next_t_pos) + self.cdel(e))
         else:
             return(self.dist(s_pos, next_t_pos))
 
@@ -480,7 +479,7 @@ class Klein():
                 e = s[s_st]
                 next_s_pos = (s_st+1, s_ed)
         if(s.has_mate(e, s_pos)):
-            return self.dist(next_s_pos, t_pos) + self.cdel(e, s)
+            return self.dist(next_s_pos, t_pos) + self.cdel(e)
         else:
             return self.dist(next_s_pos, t_pos)
 
@@ -512,7 +511,7 @@ class Klein():
         return \
             self.dist(sp, tp) + \
             self.dist(spp, tpp) + \
-            self.cmatch(e, ep)
+            self.cmatch(ep, e)
 
     @memoize
     def dist(self, s_pos, t_pos):
@@ -522,8 +521,6 @@ class Klein():
         # if (s_pos, t_pos) in self.delta.keys():
         #     return self.delta[(s_pos, t_pos)]
 
-        # print("dist" + str(s_pos) + str(t_pos))
-
         res = min(self.delete_from_s(s_pos, t_pos),
                   self.delete_from_t(s_pos, t_pos),
                   self.match(s_pos, t_pos))
@@ -531,10 +528,16 @@ class Klein():
         # self.delta[(s_pos, t_pos)] = res
         return res
 
-    def cdel(self, symbol, string):
+    def cdel(self, val1):
         return 1
 
-    def cmatch(self, symbol1, symbol2):
+    def cmatch(self, val1, val2):
+        if val1 < 0:
+            val1 *= -1
+        if val2 < 0:
+            val2 *= -1
+        symbol1 = self.f.indexer.i_to_label[val1]
+        symbol2 = self.g.indexer.i_to_label[val2]
         if(symbol1 == symbol2):
             return 0
         return 1
@@ -578,7 +581,7 @@ def Klein_TED(dict_t1, dict_t2):
     t1 = build_tree_from_dict(dict_t1)
     t2 = build_tree_from_dict(dict_t2)
     (t1_E, t2_E) = (t1.E(), t2.E())
-    k = Klein(t1_E, t2_E)
+    k = Klein(t1, t2)
 
     # delta = {}
     # k.delta = delta
