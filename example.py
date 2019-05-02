@@ -3,16 +3,13 @@
 from klein import Klein_TED
 
 t1 = {
-        1: [2, 3],
-        2: [4],
-        4: [5],
+    'domplaz':  [1,2,3,4]
+
 }
 
 t2 = {
-        1: [2, 3],
-        2: [5],
-        3: [4],
+    'grutzenweg': [2,3,4,8]
 }
 
 
-print(Klein_TED(t1,t2))
+print(Klein_TED(t1,t2, 'domplaz', 'grutzenweg'))
