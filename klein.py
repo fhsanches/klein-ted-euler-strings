@@ -1,6 +1,20 @@
 #!/usr/bin/env python3
+import functools
 
 INFTY = float('inf')
+
+
+def memoize(func):
+    cache = func.cache = {}
+
+    @functools.wraps(func)
+    def memoized_func(*args, **kwargs):
+        key = str(args) + str(kwargs)
+        if key not in cache:
+            cache[key] = func(*args, **kwargs)
+        return cache[key]
+
+    return memoized_func
 
 
 class Arc:
@@ -247,7 +261,7 @@ class Indexer():
         self.i += 1
         return self.i
 
-    def transform_dict(self, adj_dict, root_label):
+    def transform_dict(self, adj_dict):
         '''
         receives a dict in the form: {label: [label1, label...]}
         returns a dict in the form: {(0, label): [(1, label1), (2, label2)...]
@@ -256,8 +270,8 @@ class Indexer():
         label_to_i = self.label_to_i
         i_to_label = self.i_to_label
 
-        label_to_i[0] = 0
-        i_to_label[0] = 0
+        # label_to_i[0] = 0
+        # i_to_label[0] = 0
 
         for (label, children_label) in adj_dict.items():
             if label not in label_to_i:
@@ -272,7 +286,6 @@ class Indexer():
 
         new_dict = {}
 
-        new_dict[(0,0)] = [adj_dict[root_label]]
         for label, children_label in adj_dict.items():
             new_dict[(self.label_to_i[label], label)] = \
                                       [(self.label_to_i[clabel], clabel)
@@ -289,17 +302,13 @@ def build_tree_from_dict(adj_dict, root_label=0):
     the root must be in the dict
     '''
 
-    # add artificial root
-    adj_dict[0] = [root_label]
-    
     nodes = {}
 
     # transform dict to use identifiers instead of labels
     i = Indexer()
-    adj_dict = i.transform_dict(adj_dict, root_label)  # form (i, label)
+    adj_dict = i.transform_dict(adj_dict)  # now in form (i, label)
 
-    #root = Node(0, root_label)
-    root = Node(0, 0)
+    root = Node(0, root_label)
     nodes[0] = root
 
     # build the tree
@@ -316,6 +325,9 @@ def build_tree_from_dict(adj_dict, root_label=0):
             child = nodes[child_val[0]]
 
             parent.add_child(child)
+
+    # add old root as child of new root
+    root.add_child(nodes[i.label_to_i[root_label]])
 
     root.post_processing()
     root.indexer = i
@@ -505,7 +517,7 @@ class Klein():
             self.dist(spp, tpp) + \
             self.cmatch(ep, e)
 
-    #@memoize
+    @memoize
     def dist(self, s_pos, t_pos):
 
         self.tests_num += 1
@@ -524,15 +536,12 @@ class Klein():
         return 1
 
     def cmatch(self, val1, val2):
-        # print('raw: ' + str(val1) + ',' + str(val2))
         if val1 < 0:
             val1 *= -1
         if val2 < 0:
             val2 *= -1
         symbol1 = self.f.indexer.i_to_label[val1]
         symbol2 = self.g.indexer.i_to_label[val2]
-        # print(str(symbol1) + ',' + str(symbol2))
-        # print(self.f.indexer.i_to_label)
         if(symbol1 == symbol2):
             return 0
         return 1
@@ -556,6 +565,7 @@ def substrings(e1):
 
 
 def rel_s(t):
+    '''returns the relevant substrings of a tree'''
     pairs = t.diff_dict.keys()
     res = pairs
     res = sorted(pairs, key=lambda tup: (tup[1] - tup[0]))
@@ -575,16 +585,12 @@ def Klein_TED(dict_t1, dict_t2, dict_t1_root=0, dict_t2_root=0):
     (t1_E, t2_E) = (t1.E(), t2.E())
     k = Klein(t1, t2)
 
-    # delta = {}
-    # k.delta = delta
-
     for s in substrings(t1_E):
         for t in rel_s(t2_E):
-            # delta[s, t] = k.dist(s, t)
             k.dist(s, t)
 
     result = (k.dist(t1_E.get_pos(), t2_E.get_pos()), k.tests_num)  # pair
 
-    # k.dist.cache.clear()
+    k.dist.cache.clear()
 
     return result
