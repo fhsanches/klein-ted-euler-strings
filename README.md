@@ -13,8 +13,8 @@ Input trees must be given as a dictionary representing adjacency lists. For each
 If you want to customize the cost functions, you must edit the "cdel" and "cmatch" functions in the Klein class. Doing this in a more elegant way is on my TODO list. By default, cdel always returns 1 and cmatch(a,b) = 0 if a=b, 1 otherwise.
 
 *Files description:*
-klein.py: the algorithm itself, and related data structures;
-tests.py: unit tests. Currently the program fails in a few tests, but the tests are currently broken.
+- klein.py: the algorithm itself, and related data structures;
+- tests.py: unit tests. Currently the program fails in a few tests, but the tests are currently broken.
 
 *Known bugs:*
 - Unit tests are currently broken;
