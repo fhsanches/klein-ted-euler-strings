@@ -58,19 +58,19 @@ def create_tree_b():
     # 01234567890123456780
 
     a = build_tree_from_dict({
-        1: [2, 3],
-        2: [4],
-        4: [5],
-        3: [6, 7],
-        6: [8],
-        7: [9, 10],
-        10: [11],
-    }, 1)
+        'a': ['b', 'c'],
+        'b': ['d'],
+        'd': ['e'],
+        'c': ['f', 'g'],
+        'f': ['h'],
+        'g': ['i', 'j'],
+        'j': ['k'],
+    }, 'a')
 
     return a
 
 
-z = {'a': ['b'], 3: [0], None: [4, 5, 6]}
+# z = {'a': ['b'], 3: [0], None: [4, 5, 6]}
 
 
 def create_tree_c():
@@ -88,13 +88,13 @@ def create_tree_c():
     # bdhHDeEB
 
     a = build_tree_from_dict({
-        1: [2, 3],
-        2: [4, 5],
-        4: [8],
-        3: [6, 7],
-        7: [9, 10],
-        10: [11]
-    }, 1)
+        'a': ['b', 'c'],
+        'b': ['d', 'e'],
+        'd': ['h'],
+        'c': ['f', 'g'],
+        'g': ['i', 'j'],
+        'j': ['k']
+    }, 'a')
 
     return a
 
@@ -118,14 +118,14 @@ def create_tree_d():
     # bdhHDeEB
 
     a = build_tree_from_dict({
-        1: [2, 3],
-        2: [4],
-        4: [],
-        3: [7],
-        7: [9, 10],
-        10: [11],
-        11: [8]
-    }, 1)
+        'a': ['b', 'c'],
+        'b': ['d'],
+        'd': [],
+        'c': ['g'],
+        'g': ['i', 'j'],
+        'j': ['k'],
+        'k': ['h']
+    }, 'a')
 
     return a
 
@@ -156,21 +156,22 @@ def create_tree_e():
     # bdhHDeEB
 
     a = build_tree_from_dict({
-        1: [12, 3],
-        12: [4],
-        4: [],
-        3: [7],
-        7: [9, 10],
-        10: [11],
-        11: [8]
-    }, 1)
+        'a': ['l', 'c'],
+        'l': ['d'],
+        'c': ['g'],
+        'g': ['i', 'j'],
+        'j': ['k'],
+        'k': ['h']
+    }, 'a')
 
     return a
 
 
 def create_tree_singleton():
 
-    a = build_tree_from_dict({})
+    a = build_tree_from_dict({
+        "a": []
+        }, 'a')
     return a
 
 
@@ -191,18 +192,16 @@ class TestSuite(unittest.TestCase):
 
     def test_arc_dict(self):
         a = create_tree()
-        self.assertEqual(len(a.arcs_dict), 8)
+        self.assertEqual(len(a.arcs_dict), 10)
         b = create_tree_b()
-        self.assertEqual(len(b.arcs_dict), 20)
+        self.assertEqual(len(b.arcs_dict), 22)
         c = create_tree_b()
-        self.assertEqual(len(c.arcs_dict), 20)
+        self.assertEqual(len(c.arcs_dict), 22)
 
     def test_euler(self):
         a = create_tree()
 
-        self.assertEqual(a.E().string, [1, 3, 4, -4, -3, -1, 2, -2])
-        # self.assertEqual(a.children[0].E().string, [4, 5, -5, -4])
-        # self.assertEqual(a.children[1].E().string, [])
+        self.assertEqual(a.E().string, [1, 2, 4, 5, -5, -4, -2, 3, -3, -1])
 
     def test_has_mate(self):
         a = Euler_String([1, -1, 2, -2, -3, 3, -4, 5])
@@ -220,14 +219,13 @@ class TestSuite(unittest.TestCase):
 
     def test_weights(self):
         a = create_tree()
-        self.assertEqual(a.weigth, 5)
-        self.assertEqual(a.children[0].weigth, 3)
-        self.assertEqual(a.children[1].weigth, 1)
+        self.assertEqual(a.weigth, 6)
+        self.assertEqual(a.children[0].children[0].weigth, 3)
+        self.assertEqual(a.children[0].children[1].weigth, 1)
 
     def test_heavy_path(self):
         a = create_tree()
-        expected = ["a", "b", "d", "e"]
-        # expected = [0, 1, 2, 4]
+        expected = ["ARTROOT", "a", "b", "d", "e"]
         output_ls = a.heavy_path()
         output = list(map(lambda x: x.label, output_ls))
         self.assertEqual(output, expected)
@@ -243,8 +241,9 @@ class TestSuite(unittest.TestCase):
         # e
 
         a = create_tree()
-        expected = [-2, 2, 1, -1, 3, -3, 4, -4]
-        b = a.children[1]
+        expected = [1, -1, -3, 3, 2, -2, 4, -4, 5, -5]
+        # diff_seq_2.0 = [1, -4, 4, 3, -3, 5, -5, 6, -6, -1]
+        b = a.children[0].children[1]
         self.assertEqual(a.difference_sequence(a.E()), expected)
         self.assertEqual(b.difference_sequence(a.E()), [])
 
@@ -256,6 +255,8 @@ class TestSuite(unittest.TestCase):
     def test_special_subtrees(self):
 
         # a:
+        #   ARTROOT
+        #   |
         #   a
         #  / \
         # b   c
@@ -267,11 +268,13 @@ class TestSuite(unittest.TestCase):
         #     c
 
         a = create_tree()
-        expected = ['a', 'c']
+        expected = ['ARTROOT', 'c']
         result = list(map(lambda x: x.label, a.special_subtrees()))
         self.assertEqual(result, expected)
 
         # b:
+        #   ARTROOT
+        #   |        
         #   a
         #  / \
         # b   c
@@ -291,7 +294,7 @@ class TestSuite(unittest.TestCase):
         #
 
         b = create_tree_b()
-        expected = [1, 2, 6, 9]
+        expected = ['ARTROOT', 'b', 'f', 'i']
         result = b.special_subtrees()
         result = list(map(lambda x: x.label, result))
         result.sort()
@@ -322,7 +325,7 @@ class TestSuite(unittest.TestCase):
         # [bdhHDeEBcfFgiIjkKJGC]
         # [01234567890123456780]
         c = create_tree_c()
-        expected = [1, 2, 5, 6, 9]
+        expected = ['ARTROOT', 'b', 'e', 'f', 'i']
         result = c.special_subtrees()
         result = list(map(lambda x: x.label, result))
         result.sort()
@@ -334,10 +337,7 @@ class TestSuite(unittest.TestCase):
         b = create_tree_b()
         c = create_tree_c()
 
-        # print("label:::")
-        # print(a.children[0].label)
-
-        self.assertEqual(a.children[0].get_subtree_indexes(), (1, 5))
+        self.assertEqual(a.get_subtree_indexes(), (1, 5))
         self.assertEqual(b.children[1].get_subtree_indexes(), (7, 19))
         self.assertEqual(c.children[1].children[1].get_subtree_indexes(),  # g
                          (12, 18))
@@ -450,9 +450,8 @@ class TestSuite(unittest.TestCase):
     def test_diff_dict(self):
         a = create_tree()
         a_s = a.E()
-        # a = [2, 4, 5, -5, -4, -2, 3, -3]
-        # a = [1, 3, 4, -4, -3, -1, 2, -2]
-        # diff seq = [-2, 2, 1, -1, 3, -3, 4, -4]
+        # abdeEDBcCA
+        # bdeEDBcCA
         # bdeEDBcC
         # bdeEDBc
         # bdeEDB
@@ -462,21 +461,27 @@ class TestSuite(unittest.TestCase):
         # eE
         # E
         # ""
+        print('diff')
+        print(a_s.diff_dict)
 
+        # a = [1, -1, 2, 4, 5, -5, -4, -2, 3, -3], -3
+        self.assertEqual(a_s.diff_dict[(0, 10)],  0)
+        # a = [-1, 2, 4, 5, -5, -4, -2, 3, -3], -3
+        self.assertEqual(a_s.diff_dict[(1, 10)],  1)        
         # a = [2, 4, 5, -5, -4, -2, 3, -3], -3
-        self.assertEqual(a_s.diff_dict[(0, 8)],  1)
+        self.assertEqual(a_s.diff_dict[(1, 9)],  1)
         # a = [2, 4, 5, -5, -4, -2, 3], 3
-        self.assertEqual(a_s.diff_dict[(0, 7)],  1)
+        self.assertEqual(a_s.diff_dict[(1, 8)],  1)
         # a = [2, 4, 5, -5, -4, -2] 2
-        self.assertEqual(a_s.diff_dict[(0, 6)],  0)
+        self.assertEqual(a_s.diff_dict[(1, 7)],  0)
         # a = [4, 5, -5, -4, -2] -2
-        self.assertEqual(a_s.diff_dict[(1, 6)],  1)
+        self.assertEqual(a_s.diff_dict[(2, 7)],  1)
         # a = [4, 5, -5, -4] 4
-        self.assertEqual(a_s.diff_dict[(1, 5)],  0)
+        self.assertEqual(a_s.diff_dict[(2, 6)],  0)
         # a = [5, -5, -4] -4
-        self.assertEqual(a_s.diff_dict[(2, 5)],  1)
+        self.assertEqual(a_s.diff_dict[(3, 6)],  1)
         # a = [5, -5] 5
-        self.assertEqual(a_s.diff_dict[(2, 4)],  0)
+        self.assertEqual(a_s.diff_dict[(3, 5)],  0)
         # a = [-5] -5
         # self.assertEqual(a_s.diff_dict[(3, 4)],  1)
 
@@ -487,6 +492,7 @@ class TestSuite(unittest.TestCase):
         # diff seq = [-2, 2, 1, -1, 3, -3, 4, -4]
         pos = at.get_pos()
 
+        print(at)
         self.assertEqual(at.next_string(pos), ((0, 7), -2))
         self.assertEqual(at.next_string((0, 7)), ((0, 6), 2))
         self.assertEqual(at.next_string((0, 6)), ((1, 6), 1))
@@ -494,11 +500,11 @@ class TestSuite(unittest.TestCase):
     def test_remove_from_s(self):
 
         at = create_tree()
-        a = at.E()
+        a = at.children[0].E()
         bt = create_tree_b()
-        b = bt.E()
+        b = bt.children[0].E()
         ct = create_tree_c()
-        c = ct.E()
+        c = ct.children[0].E()
         ot = create_tree_singleton()
         one = ot.E()
 
@@ -508,7 +514,7 @@ class TestSuite(unittest.TestCase):
         c_pos = c.get_pos()
 
         k1 = Klein(ot, ot)
-        self.assertEqual(k1.delete_from_s(one_pos, one_pos), float('inf'))
+        self.assertEqual(k1.delete_from_s((0,0),(0,0)), float('inf'))
         k2 = Klein(at, ot)
         self.assertEqual(k2.delete_from_s(a_pos, one_pos), 4)
         k3 = Klein(bt, ot)
@@ -533,8 +539,7 @@ class TestSuite(unittest.TestCase):
         c_pos = c.get_pos()
 
         k1 = Klein(ot, ot)
-        self.assertEqual(k1.delete_from_t(one_pos, one_pos),
-                         float('inf'))
+        self.assertEqual(k1.delete_from_t((0, 0), (0, 0)), float('inf'))
         k2 = Klein(ot, at)
         self.assertEqual(k2.delete_from_t(one_pos, a_pos), 4)
         k3 = Klein(ot, bt)

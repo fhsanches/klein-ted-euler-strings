@@ -87,6 +87,8 @@ class Node:
 
     def add_child(self, child):
         self.children.append(child)
+        child.parent = self
+        child.parent_val = self.value
         arc = Arc(self, child, child.value)
         self.arcs.append(arc)
 
@@ -302,35 +304,35 @@ def build_tree_from_dict(adj_dict, root_label=0):
     the root must be in the dict
     '''
 
-    nodes = {}
-
     # transform dict to use identifiers instead of labels
     i = Indexer()
-    adj_dict = i.transform_dict(adj_dict)  # now in form (i, label)
+    adj_dict = i.transform_dict(adj_dict)  # now in form (i, label) -> [(i, label)]
 
-    root = Node(0, root_label)
-    nodes[0] = root
+    # first we instance every node, adding it to a hash
+    Nodes = {}
 
-    # build the tree
-    for (parent_val, child_values) in adj_dict.items():
-        if not nodes.get(parent_val[0]):
-            nodes[parent_val[0]] = Node(parent_val[0], parent_val[1])
+    # we begin reating an artificial root
+    root = Node(0, 'ARTROOT')
 
-        parent = nodes[parent_val[0]]
+    # then we traverse the adj dict, adding everything we find
+    for (pid, plabel) in adj_dict.keys():
+        if(not (Nodes.get(pid))):
+            Nodes[pid] = Node(pid, plabel, root)
+        for (cid, clabel) in adj_dict[(pid, plabel)]:
+            if(not (Nodes.get(cid))):
+                Nodes[cid] = Node(cid, clabel, root)
 
-        for child_val in child_values:
-            if not nodes.get(child_val[0]):
-                nodes[child_val[0]] = Node(child_val[0], child_val[1], root)
+    # now we re-traverse the dict, settings children accordingly:
+    for (pid, plabel) in adj_dict.keys():
+        for (cid, clabel) in adj_dict[(pid, plabel)]:
+            Nodes[pid].add_child(Nodes[cid])
 
-            child = nodes[child_val[0]]
-
-            parent.add_child(child)
-
-    # add old root as child of new root
-    root.add_child(nodes[i.label_to_i[root_label]])
+    # now we connect the artificial root to the original one
+    old_root_id = i.label_to_i[root_label]
+    root.add_child(Nodes[old_root_id])
 
     root.post_processing()
-    root.indexer = i
+    # root.indexer = i    
     return root
 
 
