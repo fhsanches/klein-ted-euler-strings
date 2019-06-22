@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# author: Fernando H. Sanches
+
 from klein import Node, Euler_String, Klein, build_tree_from_dict
 import unittest
 # import random
@@ -274,7 +276,7 @@ class TestSuite(unittest.TestCase):
 
         # b:
         #   ARTROOT
-        #   |        
+        #   |
         #   a
         #  / \
         # b   c
@@ -331,16 +333,21 @@ class TestSuite(unittest.TestCase):
         result.sort()
         self.assertEqual(result, expected)
 
+    # FIXME elaborate new tests
     def test_get_subtree_indexes(self):
-
         a = create_tree()
         b = create_tree_b()
         c = create_tree_c()
 
-        self.assertEqual(a.get_subtree_indexes(), (1, 5))
-        self.assertEqual(b.children[1].get_subtree_indexes(), (7, 19))
-        self.assertEqual(c.children[1].children[1].get_subtree_indexes(),  # g
-                         (12, 18))
+        self.assertEqual(
+            a.children[0].get_subtree_indexes(),
+            (1, 9))
+        self.assertEqual(
+            b.children[0].children[1].get_subtree_indexes(),
+            (8, 20))
+        self.assertEqual(
+            c.children[0].children[1].children[1].get_subtree_indexes(),  # g
+            (13, 19))
 
     def test_special_subtrees_diff_dict(self):
 
@@ -467,7 +474,7 @@ class TestSuite(unittest.TestCase):
         # a = [1, -1, 2, 4, 5, -5, -4, -2, 3, -3], -3
         self.assertEqual(a_s.diff_dict[(0, 10)],  0)
         # a = [-1, 2, 4, 5, -5, -4, -2, 3, -3], -3
-        self.assertEqual(a_s.diff_dict[(1, 10)],  1)        
+        self.assertEqual(a_s.diff_dict[(1, 10)],  1)
         # a = [2, 4, 5, -5, -4, -2, 3, -3], -3
         self.assertEqual(a_s.diff_dict[(1, 9)],  1)
         # a = [2, 4, 5, -5, -4, -2, 3], 3
@@ -485,17 +492,18 @@ class TestSuite(unittest.TestCase):
         # a = [-5] -5
         # self.assertEqual(a_s.diff_dict[(3, 4)],  1)
 
+    # FIXME re-elaborate tests
     def test_next_string(self):
         a = create_tree()
         at = a.E()
-        # a = [1, 3, 4, -4, -3, -1, 2, -2]
-        # diff seq = [-2, 2, 1, -1, 3, -3, 4, -4]
+        # a = [1, 2, 4, 5, -5, -4, -2, 3, -3, -1]
+        # # diff seq = [1, -1, -3, 3, 2, -2, 3, -3, 4, -4]
         pos = at.get_pos()
 
         print(at)
-        self.assertEqual(at.next_string(pos), ((0, 7), -2))
-        self.assertEqual(at.next_string((0, 7)), ((0, 6), 2))
-        self.assertEqual(at.next_string((0, 6)), ((1, 6), 1))
+        self.assertEqual(at.next_string(pos), ((1, 10), 1))
+        self.assertEqual(at.next_string((1, 10)), ((1, 9), -1))
+        # self.assertEqual(at.next_string((1, 9)), ((1, 8), -2))
 
     def test_remove_from_s(self):
 
@@ -514,7 +522,7 @@ class TestSuite(unittest.TestCase):
         c_pos = c.get_pos()
 
         k1 = Klein(ot, ot)
-        self.assertEqual(k1.delete_from_s((0,0),(0,0)), float('inf'))
+        self.assertEqual(k1.delete_from_s((0, 0), (0, 0)), float('inf'))
         k2 = Klein(at, ot)
         self.assertEqual(k2.delete_from_s(a_pos, one_pos), 4)
         k3 = Klein(bt, ot)

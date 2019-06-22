@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+# author: Fernando H. Sanches
+
 import functools
 
 INFTY = float('inf')
@@ -232,6 +235,8 @@ class Node:
         return ls
 
     def get_subtree_indexes(self):
+        """return the indexes of the the first and last arc of the subtree
+        rooted at this node"""
         E = self.E()
         if(not self.children):
             return (0, 0)
@@ -306,7 +311,8 @@ def build_tree_from_dict(adj_dict, root_label=0):
 
     # transform dict to use identifiers instead of labels
     i = Indexer()
-    adj_dict = i.transform_dict(adj_dict)  # now in form (i, label) -> [(i, label)]
+    adj_dict = i.transform_dict(adj_dict)
+    # now in form (i, label) -> [(i, label)]
 
     # first we instance every node, adding it to a hash
     Nodes = {}
@@ -332,7 +338,7 @@ def build_tree_from_dict(adj_dict, root_label=0):
     root.add_child(Nodes[old_root_id])
 
     root.post_processing()
-    # root.indexer = i    
+    root.indexer = i
     return root
 
 

@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+# author: Fernando H. Sanches
+
 from klein import Klein_TED
 
 t1 = {
