@@ -455,9 +455,13 @@ class Klein():
         self.t = g.E()
         self.tests_num = 0
 
-        self.delta = {}
+        self.delta = {}  # memoization dict
 
     def delete_from_t(self, s_pos, t_pos):
+        """
+        Attempts to delete from t, returning dist(s, t-next(t))).
+        If t is empty, return INFTY.
+        """
         t = self.t
 
         if(t.is_empty(t_pos)):
@@ -471,6 +475,11 @@ class Klein():
             return(self.dist(s_pos, next_t_pos))
 
     def delete_from_s(self, s_pos, t_pos):
+        """
+        Attempts to delete from s, returning dist(s - next(s), t)
+        next(s) is determined by the position of next(t)
+        If s is empty, return INFTY.
+        """
         s = self.s
         t = self.t
 
@@ -496,6 +505,13 @@ class Klein():
             return self.dist(next_s_pos, t_pos)
 
     def match(self, s_pos, t_pos):
+        """
+        Attempts to match next(s) with next(t).
+        Assuming e = next(s) is the last symbol in s, splits s and t as:
+        (s'', em, s', e) <- s
+        (t'', e'm, t', e') <- t
+        Returns dist(s'', t'') + dist(s' + t') + cmatch(e, e')
+        """
         s = self.s
         t = self.t
 
@@ -550,6 +566,7 @@ class Klein():
             val2 *= -1
         symbol1 = self.f.indexer.i_to_label[val1]
         symbol2 = self.g.indexer.i_to_label[val2]
+        print("matching " + symbol1 + " to " + symbol2)
         if(symbol1 == symbol2):
             return 0
         return 1

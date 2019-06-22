@@ -2,7 +2,7 @@
 
 # author: Fernando H. Sanches
 
-from klein import Node, Euler_String, Klein, build_tree_from_dict
+from klein import Node, Euler_String, Klein, build_tree_from_dict, Indexer
 import unittest
 # import random
 
@@ -171,9 +171,13 @@ def create_tree_e():
 
 def create_tree_singleton():
 
-    a = build_tree_from_dict({
-        "a": []
-        }, 'a')
+    i = 0
+    label = 'ARTROOT'
+    a = Node(i, label)
+    i = Indexer()
+    i.i_to_label = {i: label}
+    i.label_to_i = {label: i}
+    a.post_processing()
     return a
 
 
@@ -505,7 +509,7 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(at.next_string((1, 10)), ((1, 9), -1))
         # self.assertEqual(at.next_string((1, 9)), ((1, 8), -2))
 
-    def test_remove_from_s(self):
+    def test_delete_from_s(self):
 
         at = create_tree()
         a = at.children[0].E()
@@ -522,15 +526,23 @@ class TestSuite(unittest.TestCase):
         c_pos = c.get_pos()
 
         k1 = Klein(ot, ot)
-        self.assertEqual(k1.delete_from_s((0, 0), (0, 0)), float('inf'))
+        self.assertEqual(
+            k1.delete_from_s((0, 0), (0, 0)),
+            float('inf'))
         k2 = Klein(at, ot)
-        self.assertEqual(k2.delete_from_s(a_pos, one_pos), 4)
+        self.assertEqual(
+            k2.delete_from_s(a_pos, one_pos),
+            at.weigth - 1)
         k3 = Klein(bt, ot)
-        self.assertEqual(k3.delete_from_s(b_pos, one_pos), 10)
+        self.assertEqual(
+            k3.delete_from_s(b_pos, one_pos), 
+            bt.weigth - 1)
         k4 = Klein(ct, ot)
-        self.assertEqual(k4.delete_from_s(c_pos, one_pos), 10)
+        self.assertEqual(
+            k4.delete_from_s(c_pos, one_pos), 
+            ct.weigth - 1)
 
-    def test_remove_from_t(self):
+    def test_delete_from_t(self):
 
         at = create_tree()
         a = at.E()
@@ -542,18 +554,29 @@ class TestSuite(unittest.TestCase):
         one = ot.E()
 
         one_pos = one.get_pos()
+        print("op: " + str(one_pos))
+        # one_pos = (0, 1)
+
         a_pos = a.get_pos()
         b_pos = b.get_pos()
         c_pos = c.get_pos()
 
         k1 = Klein(ot, ot)
-        self.assertEqual(k1.delete_from_t((0, 0), (0, 0)), float('inf'))
+        self.assertEqual(
+            k1.delete_from_t((0, 0), (0, 0)),
+            float('inf'))
         k2 = Klein(ot, at)
-        self.assertEqual(k2.delete_from_t(one_pos, a_pos), 4)
+        self.assertEqual(
+            k2.delete_from_t(one_pos, a_pos),
+            at.weigth - 1) #-1 to discount the artificial root
         k3 = Klein(ot, bt)
-        self.assertEqual(k3.delete_from_t(one_pos, b_pos), 10)
+        self.assertEqual(
+            k3.delete_from_t(one_pos, b_pos),
+            bt.weigth - 1)
         k4 = Klein(ot, ct)
-        self.assertEqual(k4.delete_from_t(one_pos, c_pos), 10)
+        self.assertEqual(
+            k4.delete_from_t(one_pos, c_pos),
+            ct.weigth - 1)
 
     def test_match(self):
 
