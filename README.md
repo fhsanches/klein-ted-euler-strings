@@ -14,10 +14,9 @@ If you want to customize the cost functions, you must edit the "cdel" and "cmatc
 
 *Files description:*
 - klein.py: the algorithm itself, and related data structures;
-- tests.py: unit tests. Currently the program fails in a few tests, but the tests are currently broken.
+- klein_test.py: unit tests.
 
 *Known bugs:*
-- Unit tests are currently broken;
 - More comprehensive test sets should be implemented;
 - The recursion reaches the stack depth faster than it should (can be mitigated with a sys.setrecursionlimit(100000)
 at the beginning of the program).
