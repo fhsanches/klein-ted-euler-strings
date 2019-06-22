@@ -535,11 +535,11 @@ class TestSuite(unittest.TestCase):
             at.weigth - 1)
         k3 = Klein(bt, ot)
         self.assertEqual(
-            k3.delete_from_s(b_pos, one_pos), 
+            k3.delete_from_s(b_pos, one_pos),
             bt.weigth - 1)
         k4 = Klein(ct, ot)
         self.assertEqual(
-            k4.delete_from_s(c_pos, one_pos), 
+            k4.delete_from_s(c_pos, one_pos),
             ct.weigth - 1)
 
     def test_delete_from_t(self):
@@ -568,7 +568,7 @@ class TestSuite(unittest.TestCase):
         k2 = Klein(ot, at)
         self.assertEqual(
             k2.delete_from_t(one_pos, a_pos),
-            at.weigth - 1) #-1 to discount the artificial root
+            at.weigth - 1)  # -1 to discount the artificial root
         k3 = Klein(ot, bt)
         self.assertEqual(
             k3.delete_from_t(one_pos, b_pos),
