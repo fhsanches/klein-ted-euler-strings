@@ -10,7 +10,7 @@ Details of implementation can be found in my Master's thesis (Sanches, Fernando 
 Usage: 
 Input trees must be given as a dictionary representing adjacency lists. For each pair (key, values) in the dict, key is the label of a node in the tree, and value is a list containing the labels of its children. See example.py for usage.
 
-If you want to customize the cost functions, you must edit the "cdel" and "cmatch" functions in the Klein class. Doing this in a more elegant way is on my TODO list. By default, cdel always returns 1 and cmatch(a,b) = 0 if a=b, 1 otherwise.
+If you want to customize the cost functions, you may extend the "Cost" class with the "cdel" and "cmatch" methods, as shown in the example.
 
 *Files description:*
 - klein.py: the algorithm itself, and related data structures;
@@ -20,7 +20,6 @@ If you want to customize the cost functions, you must edit the "cdel" and "cmatc
 - More comprehensive test sets should be implemented;
 - The recursion reaches the stack depth faster than it should (can be mitigated with a sys.setrecursionlimit(100000)
 at the beginning of the program).
-- Setting costs requires editing the Klein class manually;
 - Inputting nodes and labels should be done sepparately (to allow repeat labels);
 - Documentation is still a WIP.
 

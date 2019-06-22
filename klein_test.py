@@ -177,6 +177,7 @@ def create_tree_singleton():
     i = Indexer()
     i.i_to_label = {i: label}
     i.label_to_i = {label: i}
+    a.indexer = i
     a.post_processing()
     return a
 

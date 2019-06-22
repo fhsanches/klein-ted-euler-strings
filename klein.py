@@ -447,14 +447,38 @@ class Euler_String():
         return (st >= ed)
 
 
+class Cost():
+    """
+    defines the cost functions for edit operations
+    """
+
+    def cdel(self, label):
+        """
+        Returns the cost of deleting a node with label <label>
+        """
+        return 1
+
+    def cmatch(self, label1, label2):
+        """
+        Returns the cost of matching two nodes with
+        labels <label1> and <label2>
+
+        """
+        if(label1 == label2):
+            return 0
+        else:
+            return 1
+
+
 class Klein():
-    def __init__(self, f, g):
+    def __init__(self, f, g, cost=Cost()):
         self.f = f
         self.g = g
         self.s = f.E()
         self.t = g.E()
         self.tests_num = 0
 
+        self.cost = cost  # cost object
         self.delta = {}  # memoization dict
 
     def delete_from_t(self, s_pos, t_pos):
@@ -470,7 +494,7 @@ class Klein():
         (next_t_pos, e) = t.next_string(t_pos)
 
         if(t.has_mate(e, next_t_pos)):
-            return(self.dist(s_pos, next_t_pos) + self.cdel(e))
+            return(self.dist(s_pos, next_t_pos) + self.cdel(e, False))
         else:
             return(self.dist(s_pos, next_t_pos))
 
@@ -500,7 +524,7 @@ class Klein():
                 e = s[s_st]
                 next_s_pos = (s_st+1, s_ed)
         if(s.has_mate(e, s_pos)):
-            return self.dist(next_s_pos, t_pos) + self.cdel(e)
+            return self.dist(next_s_pos, t_pos) + self.cdel(e, True)
         else:
             return self.dist(next_s_pos, t_pos)
 
@@ -556,20 +580,37 @@ class Klein():
         self.delta[(s_pos, t_pos)] = res
         return res
 
-    def cdel(self, val1):
-        return 1
+    def cdel(self, val, del_from_s):
+        """
+        Input: a value
+        Output: cdel(label(value))
+        """
+        # if the val is a mate, we take the original instead
+        if(val < 0):
+            val *= -1
+
+        if(del_from_s):
+            label = self.f.indexer.i_to_label[val]
+        else:
+            label = self.g.indexer.i_to_label[val]
+        return self.cost.cdel(label)
 
     def cmatch(self, val1, val2):
+        """
+        Input: Two values
+        Output: cmatch(label(val1), label(val2))
+        """
+
+        # if the val is a mate, we take the original instead
         if val1 < 0:
             val1 *= -1
         if val2 < 0:
             val2 *= -1
-        symbol1 = self.f.indexer.i_to_label[val1]
-        symbol2 = self.g.indexer.i_to_label[val2]
-        print("matching " + symbol1 + " to " + symbol2)
-        if(symbol1 == symbol2):
-            return 0
-        return 1
+
+        label1 = self.f.indexer.i_to_label[val1]
+        label2 = self.g.indexer.i_to_label[val2]
+
+        return self.cost.cmatch(label1, label2)
 
 
 def i2n(lista):
@@ -597,7 +638,7 @@ def rel_s(t):
     return res
 
 
-def Klein_TED(dict_t1, dict_t2, dict_t1_root=0, dict_t2_root=0):
+def Klein_TED(dict_t1, dict_t2, dict_t1_root=0, dict_t2_root=0, cost=Cost):
     '''returns a pair
     (x,y),
     where:
@@ -608,7 +649,7 @@ def Klein_TED(dict_t1, dict_t2, dict_t1_root=0, dict_t2_root=0):
     t1 = build_tree_from_dict(dict_t1, dict_t1_root)
     t2 = build_tree_from_dict(dict_t2, dict_t2_root)
     (t1_E, t2_E) = (t1.E(), t2.E())
-    k = Klein(t1, t2)
+    k = Klein(t1, t2, cost)
 
     for s in substrings(t1_E):
         for t in rel_s(t2_E):
